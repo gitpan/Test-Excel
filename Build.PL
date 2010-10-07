@@ -1,0 +1,18 @@
+﻿use strict; use warnings;
+use Module::Build;
+
+my $builder = Module::Build->new(
+    module_name    => 'Test::Excel',
+    license        => 'perl',
+    dist_author    => 'Mohammad S Anwar, <mohammad.anwar@yahoo.com>',
+    build_requires => {
+	    'Test::Builder'           => 0,
+		'Spreadsheet::ParseExcel' => 0,
+		'Scalar::Util'            => 0,
+		'Test::Builder::Tester'   => 0,                
+		'Test::More'              => 0.47,        
+		'File::Spec'              => 0,
+    },
+);
+
+$builder->create_build_script();

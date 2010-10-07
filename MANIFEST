@@ -1,0 +1,12 @@
+Changes
+Build.PL
+Makefile.PL
+MANIFEST
+README
+lib/Test/Excel.pm
+t/10_Test-Excel_test.t
+t/20_cmp_excel.t
+t/30_compare_excel.t
+t/foo_bar.xls
+t/hello_world.xls
+t/pod.t
