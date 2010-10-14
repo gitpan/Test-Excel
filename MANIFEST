@@ -10,3 +10,4 @@ t/30_compare_excel.t
 t/foo_bar.xls
 t/hello_world.xls
 t/pod.t
+META.yml
