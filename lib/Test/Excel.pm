@@ -2,7 +2,7 @@ package Test::Excel;
 
 use strict; use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Carp;
 use Readonly;
@@ -24,24 +24,24 @@ sub cmp_excel
 {
     my $got     = shift;
     my $exp     = shift;
-	my $rule    = shift;
+    my $rule    = shift;
     my $message = shift;
 
-    unless (blessed($got) && $got->isa('Spreadsheet::ParseExcel::WorkBook')) 
+    unless (blessed($got) && $got->isa('Spreadsheet::ParseExcel::WorkBook'))
     {
-        $got = Spreadsheet::ParseExcel::Workbook->Parse($got) 
+        $got = Spreadsheet::ParseExcel::Workbook->Parse($got)
             || croak("ERROR: Couldn't create Spreadsheet::ParseExcel::WorkBook instance with: [$got]\n");
     }
-    unless (blessed($exp) && $exp->isa('Spreadsheet::ParseExcel::WorkBook')) 
+    unless (blessed($exp) && $exp->isa('Spreadsheet::ParseExcel::WorkBook'))
     {
         $exp = Spreadsheet::ParseExcel::Workbook->Parse($exp) 
             || croak("ERROR: Couldn't create Spreadsheet::ParseExcel::WorkBook instance with: [$exp]\n");
     }
-    
+
     my (@gotWorkSheets, @expWorkSheets, $error);
     @gotWorkSheets = $got->worksheets();
     @expWorkSheets = $exp->worksheets();
-    
+
     if (scalar(@gotWorkSheets) != scalar(@expWorkSheets))
     {
         $error = "ERROR: Sheets count mismatch. ";
@@ -50,14 +50,14 @@ sub cmp_excel
         return 0;
     }
 
-    my ($i);    
+    my ($i);
     for ($i=0; $i<scalar(@gotWorkSheets); $i++)
     {
         my ($gotWorkSheet, $expWorkSheet);
         my ($gotSheetName, $expSheetName);
         my ($gotRowMin, $gotRowMax, $gotColMin, $gotColMax);
         my ($expRowMin, $expRowMax, $expColMin, $expColMax);
-        
+
         $gotWorkSheet = $gotWorkSheets[$i];
         $expWorkSheet = $expWorkSheets[$i];
         $gotSheetName = $gotWorkSheet->get_name();
@@ -65,38 +65,38 @@ sub cmp_excel
         if (uc($gotSheetName) ne uc($expSheetName))
         {
             $Test->ok(0, $message);
-			return;
-        }    
-        
+            return;
+        }
+
         ($gotRowMin, $gotRowMax) = $gotWorkSheet->row_range();
         ($gotColMin, $gotColMax) = $gotWorkSheet->col_range();
         ($expRowMin, $expRowMax) = $expWorkSheet->row_range();
         ($expColMin, $expColMax) = $expWorkSheet->col_range();
-        
+
         if (defined($gotRowMax) && defined($expRowMax) && ($gotRowMax != $expRowMax))
         {
-			$Test->ok(0, $message);
+            $Test->ok(0, $message);
             return;
         }
         if (defined($gotColMax) &&  defined($expColMax) && ($gotColMax != $expColMax))
         {
-			$Test->ok(0, $message);
+            $Test->ok(0, $message);
             return;
         }
-        
-        my ($row, $col);    
-        for ($row=$gotRowMin; $row<=$gotRowMax; $row++) 
+
+        my ($row, $col);
+        for ($row=$gotRowMin; $row<=$gotRowMax; $row++)
         {
-            for ($col=$gotColMin; $col<=$gotColMax; $col++) 
+            for ($col=$gotColMin; $col<=$gotColMax; $col++)
             {
                 my ($gotData, $expData);
                 $gotData = $gotWorkSheet->{Cells}[$row][$col]->{Val};
                 $expData = $expWorkSheet->{Cells}[$row][$col]->{Val};
-                
+
                 if (defined($gotData) && defined($expData))
                 {
                     if (($gotData =~ /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/)
-                        && 
+                        &&
                         ($expData=~ /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/))
                     {
                         if (($gotData < $ALMOST_ZERO) && ($expData < $ALMOST_ZERO))
@@ -108,7 +108,7 @@ sub cmp_excel
                             if (defined($rule) && ref($rule) eq 'HASH')
                             {
                                 my ($compare_with, $sheet, $difference);
-                                
+
                                 $sheet = $rule->{sheet};
                                 $difference = abs($expData - $gotData) / abs($expData);
                                 if ($gotSheetName =~ /$sheet/)
@@ -123,7 +123,7 @@ sub cmp_excel
                                 {
                                     $Test->ok(0, $message);
                                     return;
-                                }    
+                                }
                             }
                             else
                             {
@@ -132,7 +132,7 @@ sub cmp_excel
                                     $Test->ok(0, $message);
                                     return;
                                 }
-                            }    
+                            }
                         }
                     }
                     else
@@ -145,7 +145,7 @@ sub cmp_excel
                     }
                 }
             } # col
-        } # row    
+        } # row
     } # sheet
     
     $Test->ok(1, $message);
@@ -156,30 +156,27 @@ sub compare_excel
     my $got  = shift;
     my $exp  = shift;
     my $rule = shift;
-	print Dumper($got);
-	print Dumper($exp);
-	print Dumper($rule);
     
-    unless (blessed($got) && $got->isa('Spreadsheet::ParseExcel::WorkBook')) 
+    unless (blessed($got) && $got->isa('Spreadsheet::ParseExcel::WorkBook'))
     {
-        $got = Spreadsheet::ParseExcel::Workbook->Parse($got) 
+        $got = Spreadsheet::ParseExcel::Workbook->Parse($got)
             || croak("ERROR: Couldn't create Spreadsheet::ParseExcel::WorkBook instance with: [$got]\n");
     }
-    unless (blessed($exp) && $exp->isa('Spreadsheet::ParseExcel::WorkBook')) 
+    unless (blessed($exp) && $exp->isa('Spreadsheet::ParseExcel::WorkBook'))
     {
-        $exp = Spreadsheet::ParseExcel::Workbook->Parse($exp) 
+        $exp = Spreadsheet::ParseExcel::Workbook->Parse($exp)
             || croak("ERROR: Couldn't create Spreadsheet::ParseExcel::WorkBook instance with: [$exp]\n");
     }
 
-	if (defined($rule) && !((ref($rule) eq 'HASH') && (exists $rule->{sheet}) && (exists $rule->{tolerance}) && (exists $rule->{sheet_tolerance})))
-	{
-		die("ERROR: Invalid RULE definition. Rule should be passed in as reference to a HASH with keys sheet, tolerance and sheet_tolerance.\n");
-	};
-		
+    if (defined($rule) && !((ref($rule) eq 'HASH') && (exists $rule->{sheet}) && (exists $rule->{tolerance}) && (exists $rule->{sheet_tolerance})))
+    {
+        croak("ERROR: Invalid RULE definition. Rule should be passed in as reference to a HASH with keys sheet, tolerance and sheet_tolerance.\n");
+    };
+
     my (@gotWorkSheets, @expWorkSheets, $error);
     @gotWorkSheets = $got->worksheets();
     @expWorkSheets = $exp->worksheets();
-    
+
     if (scalar(@gotWorkSheets) != scalar(@expWorkSheets))
     {
         $error = "ERROR: Sheets count mismatch. ";
@@ -188,14 +185,14 @@ sub compare_excel
         return 0;
     }
 
-    my ($i);    
+    my ($i);
     for ($i=0; $i<scalar(@gotWorkSheets); $i++)
     {
         my ($gotWorkSheet, $expWorkSheet);
         my ($gotSheetName, $expSheetName);
         my ($gotRowMin, $gotRowMax, $gotColMin, $gotColMax);
         my ($expRowMin, $expRowMax, $expColMin, $expColMax);
-        
+
         $gotWorkSheet = $gotWorkSheets[$i];
         $expWorkSheet = $expWorkSheets[$i];
         $gotSheetName = $gotWorkSheet->get_name();
@@ -205,13 +202,13 @@ sub compare_excel
             $error = "ERROR: Sheetname mismatch. Got: [$gotSheetName] exp: [$expSheetName].\n";
             _dump_error($error);
             return 0;
-        }    
-        
+        }
+
         ($gotRowMin, $gotRowMax) = $gotWorkSheet->row_range();
         ($gotColMin, $gotColMax) = $gotWorkSheet->col_range();
         ($expRowMin, $expRowMax) = $expWorkSheet->row_range();
         ($expColMin, $expColMax) = $expWorkSheet->col_range();
-        
+
         if (defined($gotRowMax) && defined($expRowMax) && ($gotRowMax != $expRowMax))
         {
             $error = "ERROR: Max row counts mismatch in sheet [$gotSheetName]. ";
@@ -226,16 +223,16 @@ sub compare_excel
             _dump_error($error);
             return 0;
         }
-        
-        my ($row, $col);    
-        for ($row=$gotRowMin; $row<=$gotRowMax; $row++) 
+
+        my ($row, $col);
+        for ($row=$gotRowMin; $row<=$gotRowMax; $row++)
         {
-            for ($col=$gotColMin; $col<=$gotColMax; $col++) 
+            for ($col=$gotColMin; $col<=$gotColMax; $col++)
             {
                 my ($gotData, $expData);
                 $gotData = $gotWorkSheet->{Cells}[$row][$col]->{Val};
                 $expData = $expWorkSheet->{Cells}[$row][$col]->{Val};
-                
+
                 if (defined($gotData) && defined($expData))
                 {
                     if (($gotData =~ /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/)
@@ -267,7 +264,7 @@ sub compare_excel
                                     $error = "ERROR: [NUMBER]:[$gotSheetName]:Expected: [$expData] Got: [$gotData].\n";
                                     _dump_error($error);
                                     return 0;
-                                }    
+                                }
                             }
                             else
                             {
@@ -277,7 +274,7 @@ sub compare_excel
                                     _dump_error($error);
                                     return 0;
                                 }
-                            }    
+                            }
                         }
                     }
                     else
@@ -291,9 +288,9 @@ sub compare_excel
                     }
                 }
             } # col
-        } # row    
+        } # row
     } # sheet
-    
+
     return 1;
 }
 
@@ -301,12 +298,11 @@ sub _dump_error
 {
     my $message = shift;
     return unless defined($message);
-    
+
     print {*STDOUT} $message;
 }
 
 1;
-
 __END__
 
 =head1 NAME
@@ -315,7 +311,7 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 0.3
+Version 0.04
 
 =head1 SYNOPSIS
 

@@ -2,6 +2,7 @@ Changes
 Build.PL
 Makefile.PL
 MANIFEST
+MANIFEST.SKIP
 README
 lib/Test/Excel.pm
 t/10_Test-Excel_test.t
@@ -9,5 +10,12 @@ t/20_cmp_excel.t
 t/30_compare_excel.t
 t/foo_bar.xls
 t/hello_world.xls
+t/exp-1.xls
+t/got-1.xls
+t/exp-2.xls
+t/got-2.xls
+t/exp-3.xls
+t/got-3.xls
 t/pod.t
+t/manifest.t
 META.yml
