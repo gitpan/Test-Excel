@@ -1,20 +1,28 @@
 Revision history for Perl extension Test::Excel.
 
+0.05    Tue Nov 09 20:05:11 2010
+        - Added unit test for spec file.
+        - Added unit test for helper method.
+        - Organised pod for the module.
+        - Fixed unit test 20_cmp_excel.t as the signature has changed.
+        - Fixed unit test 30_compare_excel.t as the error message has changed.
+        - Importing module Spreadsheet::ParseExcel::Utility for method int2col() and col2int().
+
 0.04    Tue Nov 09 09:42:49 2010
         - Added manifest.t to the test suite.
         - Added MANIFEST.SKIP to the MANIFEST file.
         - Updated MANIFEST to include sample test data.
         - Replaced die() with croak() and fixed the unit test for method compare_excel().
         - Removed test code from method compare_excel().
-        
+
 0.03    Mon Nov 08 19:58:19 2010
         - Added unit test.
         - Updated the method cmp_excel() and compare_excel() signature to allow the rule definition.
         - Added STRING and NUMBER comparison.
-        
+
 0.02     Thu Oct 14 09:10:11 2010
         - Fixed the build regarding file permission exception throw by CPAN.
-     
+
 0.01     Fri Aug 13 16:15:49 2010
         - module created
 

@@ -42,7 +42,7 @@ eval
 };
 my $got = $@;
 chomp($got);
-my $exp = "ERROR: Invalid RULE definition. Rule should be passed in as reference to a HASH with keys sheet, tolerance and sheet_tolerance.";
+my $exp = "ERROR: Invalid RULE definition.";
 like($got, qr/$exp/);
 
 done_testing();
