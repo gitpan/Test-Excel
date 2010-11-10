@@ -4,6 +4,7 @@ author:
   - 'Mohammad S Anwar, <mohammad.anwar@yahoo.com>'
 build_requires:
   File::Spec: 0
+  Readonly: 0
   Scalar::Util: 0
   Spreadsheet::ParseExcel: 0
   Test::Builder: 0
@@ -20,7 +21,7 @@ name: Test-Excel
 provides:
   Test::Excel:
     file: lib/Test/Excel.pm
-    version: 0.05
+    version: 0.06
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.05
+version: 0.06

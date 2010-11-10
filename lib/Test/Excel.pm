@@ -22,11 +22,11 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 $|=1;
 
@@ -40,13 +40,13 @@ Readonly my $SPECIAL_CASE => 2;
   use Test::More no_plan => 1;
   use Test::Excel;
 
-  cmp_excel('foo.xls', 'bar.xls', 'EXCELSs are identical.');
+  cmp_excel('foo.xls', 'bar.xls', { message => 'EXCELSs are identical.' });
 
   # or
 
   my $foo = Spreadsheet::ParseExcel::Workbook->Parse('foo.xls');
   my $bar = Spreadsheet::ParseExcel::Workbook->Parse('bar.xls');
-  cmp_excel($foo, $bar, undef, 'EXCELs are identical.');
+  cmp_excel($foo, $bar, { message => 'EXCELs are identical.' });
 
   # or even in standalone mode:
 
@@ -67,9 +67,10 @@ can be used as standalone. Future versions may include other testing functions.
 The new paramter has been added to both method cmp_excel() and method compare_excel() 
 called rule. This is optional, however, this would allow to apply your own rule for
 comparison. This should be passed in as reference to a HASH with the keys 'sheet',
-'tolerance' and 'sheet_tolerance'.
+'tolerance', 'sheet_tolerance' and optionally 'message'(only relevant to 
+method cmp_excel()).
 
-=over 3
+=over 5
 
 =item sheet: "|" seperated sheet name.
 
@@ -86,6 +87,14 @@ Example: 10**-12
 These rule would be applied to all the sheets defined by the key sheet.
 Example: 0.20
 
+=item spec: Path to the spec file. (Optional)
+
+This would have the path to the spec file to be used in comparing excel file.
+
+=item message: String (Optional)
+
+Test message to be displayed. Only required when calling method cmp_excel().
+
 =back
 
 =head2 What is "Visually" Similar?
@@ -97,13 +106,23 @@ annotations, and focus entirely on the layout of each Excel page instead.
 Future versions will likely support font and image comparisons, but not 
 in this initial release.
 
+=head2 DEBUGGING
+
+Debug mode can be turned on or off by setting package variable $DEBUG, for example,
+
+   $Test::Excel::DEBUG = 1;
+
+You can set it anything greater than 1 for fine grained debug information. i.e.
+
+   $Test::Excel::DEBUG = 2;
+
 =cut
 
 my $Test = Test::Builder->new;
 
 =head1 METHODS
 
-=head2 cmp_excel(got, expected, rule, message)
+=head2 cmp_excel()
 
 This function will tell you whether the two Excel files are "visually" 
 different, ignoring differences in embedded fonts/images and metadata.
@@ -115,10 +134,9 @@ or a file path (which is in turn passed to the Spreadsheet::ParseExcel construct
 
 sub cmp_excel
 {
-    my $got     = shift;
-    my $exp     = shift;
-    my $rule    = shift;
-    my $message = shift;
+    my $got  = shift;
+    my $exp  = shift;
+    my $rule = shift;
 
     unless (blessed($got) && $got->isa('Spreadsheet::ParseExcel::WorkBook'))
     {
@@ -131,20 +149,30 @@ sub cmp_excel
             || croak("ERROR: Couldn't create Spreadsheet::ParseExcel::WorkBook instance with: [$exp]\n");
     }
 
-    my (@gotWorkSheets, @expWorkSheets, $error, $spec);
+    my (@gotWorkSheets, @expWorkSheets, $error, $spec, $message, $keys);
+    
     if (defined($rule))
     {
-        croak("ERROR: Invalid RULE definition.\n")
-            unless ((ref($rule) eq 'HASH') && (exists $rule->{tolerance}) && (exists $rule->{sheet_tolerance}));
+        croak("ERROR: Invalid RULE definitions.\n")
+            unless (ref($rule) eq 'HASH');
 
-        if (exists $rule->{spec})
+        $keys    = scalar(keys(%{$rule}));
+        $message = $rule->{message} if (exists($rule->{message}));
+
+        if ($keys > 1)
         {
-            $spec = parse($rule->{spec});
-        }
-        else
-        {
-            croak("ERROR: Missing sheet key in the rule definitions.\n")
-                unless (exists $rule->{sheet});
+            croak("ERROR: Missing mandatory key from the rule definitions.\n")
+                unless (exists($rule->{tolerance}) && exists($rule->{sheet_tolerance}));
+
+            if (exists $rule->{spec})
+            {
+                $spec = parse($rule->{spec});
+            }
+            else
+            {
+                croak("ERROR: Missing sheet key in the rule definitions.\n")
+                    unless (exists $rule->{sheet});
+            }
         }
     }
 
@@ -250,7 +278,6 @@ sub cmp_excel
                                     $Test->ok(0, $message);
                                     return;
                                 }
-                                print "[PASS]\n" if $DEBUG;
                             }
                             else
                             {
@@ -274,11 +301,11 @@ sub cmp_excel
             } # col
         } # row
     } # sheet
-    
+
     $Test->ok(1, $message);
 }
 
-=head2 compare_excel(got, expected, rule)
+=head2 compare_excel()
 
 This function will tell you whether the two Excel files are "visually" 
 different, ignoring differences in embedded fonts/images and metadata in standalone mode.
@@ -418,13 +445,13 @@ sub compare_excel
                                         ($gotSheetName =~ /$sheet/) )
                                 {
                                     print "INFO: [NUMBER]:[$gotSheetName]:[SPC][".($row+1)."][".($col+1)."] ... "
-                                        if $DEBUG;
+                                        if $DEBUG > 1;
                                     $compare_with = $rule->{sheet_tolerance};
                                 }
                                 else
                                 {        
                                     print "INFO: [NUMBER]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."] ... "
-                                        if $DEBUG;
+                                        if $DEBUG > 1;
                                     $compare_with = $rule->{tolerance};
                                 }
                                 $difference = abs($expData - $gotData) / abs($expData);
@@ -435,19 +462,19 @@ sub compare_excel
                                     _dump_error($error);
                                     return 0;
                                 }
-                                print "[PASS]\n" if $DEBUG;
+                                print "[PASS]\n" if $DEBUG > 1;
                             }
                             else
                             {
                                 print "INFO: [NUMBER]:[$gotSheetName]:[N/A][".($row+1)."][".($col+1)."] ... "
-                                    unless $DEBUG;
+                                    if $DEBUG > 1;
                                 if ($expData != $gotData)
                                 {
                                     $error = "ERROR: [NUMBER]:[$gotSheetName]:Expected: [$expData] Got: [$gotData].\n";
                                     _dump_error($error);
                                     return 0;
                                 }
-                                print "[PASS]\n" if $DEBUG;
+                                print "[PASS]\n" if $DEBUG > 1;
                             }
                         }
                     }
@@ -462,12 +489,13 @@ sub compare_excel
                         else
                         {
                             print "INFO: [STRING]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."] ... [PASS]\n"
-                                if $DEBUG;
+                                if $DEBUG > 1;
                         }
                     }
                 }
             } # col
         } # row
+        print "INFO: [$gotSheetName]: ..... [OK].\n" if $DEBUG == 1;
     } # sheet
 
     return 1;
@@ -478,11 +506,12 @@ sub compare_excel
 This method parse spec file provided by the user. It expects spec file to be 
 in a format mentioned below:
 
-   Sheet  Sheet1
-   Range  A3:B14
-   Range  B5:C5
-   Sheet  Sheet2
-   Range  A1:B2
+   sheet       Sheet1
+   range       A3:B14
+   range       B5:C5
+   sheet       Sheet2
+   range       A1:B2
+   ignorerange B3:B8
 
 =cut
 

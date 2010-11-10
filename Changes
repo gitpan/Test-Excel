@@ -1,5 +1,15 @@
 Revision history for Perl extension Test::Excel.
 
+0.06    Wed Nov 10 11:13:01 2010
+        - Added Readonly module to the pre-requisite list.
+        - Added unit test for ignore range in the spec.
+        - Changed the interface of method cmp_excel() and method compare_excel()
+          to accomodate the error message.
+        - Fixed unit test for cmp_excel() to reflect the changes in interface.
+        - Updated pod about the interface changes.
+        - Updated pod about DEBUGGING feature.
+        - Updated pod about rule definitions.
+          
 0.05    Tue Nov 09 20:05:11 2010
         - Added unit test for spec file.
         - Added unit test for helper method.

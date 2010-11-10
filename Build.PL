@@ -6,12 +6,13 @@ my $builder = Module::Build->new(
     license        => 'perl',
     dist_author    => 'Mohammad S Anwar, <mohammad.anwar@yahoo.com>',
     build_requires => {
-	    'Test::Builder'           => 0,
-		'Spreadsheet::ParseExcel' => 0,
-		'Scalar::Util'            => 0,
-		'Test::Builder::Tester'   => 0,                
-		'Test::More'              => 0.47,        
-		'File::Spec'              => 0,
+        'Test::Builder'           => 0,
+        'Spreadsheet::ParseExcel' => 0,
+        'Scalar::Util'            => 0,
+        'Test::Builder::Tester'   => 0,
+        'Test::More'              => 0.47,
+        'File::Spec'              => 0,
+        'Readonly'                => 0,
     },
 );
 
