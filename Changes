@@ -1,5 +1,13 @@
 Revision history for Perl extension Test::Excel.
 
+0.07    Wed Nov 10 20:08:15 2010
+        - Added local method _validate_rule().
+        - Fixed unit test 30_compare_excel.t
+        - Added more unit test to 40_unit_test.t about data validations.
+        - Added more unit test to 50_spec_test.t about ingorerange field of spec file.
+        - Corrected the definition of rules in the pod.
+        - Updated method cmp_excel() and method compare_excel() to test the file first.
+        
 0.06    Wed Nov 10 11:13:01 2010
         - Added Readonly module to the pre-requisite list.
         - Added unit test for ignore range in the spec.
@@ -31,7 +39,7 @@ Revision history for Perl extension Test::Excel.
         - Added STRING and NUMBER comparison.
 
 0.02     Thu Oct 14 09:10:11 2010
-        - Fixed the build regarding file permission exception throw by CPAN.
+        - Fixed the build regarding file permission exception threw by CPAN.
 
 0.01     Fri Aug 13 16:15:49 2010
         - module created
