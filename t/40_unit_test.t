@@ -129,7 +129,7 @@ eval
 };
 $got_error = $@;
 chomp($got_error);
-$exp_error = "ERROR: Missing key spec in the rule definitions.";
+$exp_error = "ERROR: Missing key tolerance in the rule definitions.";
 like($got_error, qr/$exp_error/);
 
 eval
@@ -142,7 +142,7 @@ eval
 };
 $got_error = $@;
 chomp($got_error);
-$exp_error = "ERROR: Missing key spec in the rule definitions.";
+$exp_error = "ERROR: Missing key tolerance in the rule definitions.";
 like($got_error, qr/$exp_error/);
 
 eval

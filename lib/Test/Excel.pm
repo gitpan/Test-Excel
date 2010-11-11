@@ -22,11 +22,11 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 $|=1;
 
@@ -72,14 +72,14 @@ method cmp_excel()).
 
 =over 5
 
-=item ignore: "|" seperated sheet name.
+=item sheet: "|" seperated sheet name.
 
-These sheets would be ignored completely.
+Apply sheet_tolerance to all the NUMBERS found on these sheets.
 Example: 'Sheet1|Sheet2'
 
 =item tolerance: Number.
 
-This would apply to all the sheets in the excel when comparing numbers
+This would apply to all the NUMBERS found on all sheets in the excel 
 except the one specified by the key sheet and by the title sheet in the
 the spec file.
 Example: 10**-12
@@ -87,10 +87,11 @@ Example: 10**-12
 =item sheet_tolerance: Number.
 
 These rule would be applied to all the sheets defined in the spec file by the 
-title 'sheet' within the range specified by 'range' in the spec file.
+title 'sheet' within the range specified by 'range' in the spec file and also
+by the key 'sheet'.
 Example: 0.20
 
-=item spec: Path to the spec file. (Optional)
+=item spec: Path to the spec file.
 
 This would have the path to the spec file to be used in comparing excel file.
 
@@ -139,33 +140,41 @@ sub _validate_rule
     croak("ERROR: Invalid RULE definitions. It has to be reference to a HASH.\n")
         unless (ref($rule) eq 'HASH');
 
-    my ($keys);
+    my ($keys, $valid);
     $keys = scalar(keys(%{$rule}));
+    return if (($keys == 1) && exists($rule->{message}));
+    
     croak("ERROR: Rule has more than 5 keys defined.\n")
         if $keys > 5;
         
-    if ($keys == 1)
-    {    
+    $valid = {'message' => 1,'sheet' => 1, 'spec' => 1, 'tolerance' => 1,'sheet_tolerance' => 1};
+    foreach (keys %{$rule})
+    {
         croak("ERROR: Invalid key found in the rule definitions.\n")
-            unless (exists($rule->{message}) || (exists($rule->{ignore})));
-        return;    
+            unless exists($valid->{$_});
     }
-    
-    if (exists($rule->{spec}) && defined($rule->{spec}))
+                
+    if ((exists($rule->{spec}) && defined($rule->{spec}))
+        ||
+        (exists($rule->{sheet}) && defined($rule->{sheet})))
     {
         croak("ERROR: Missing key sheet_tolerance in the rule definitions.\n")
             unless (exists($rule->{sheet_tolerance}) && defined($rule->{sheet_tolerance}));
         croak("ERROR: Missing key tolerance in the rule definitions.\n")
             unless (exists($rule->{tolerance}) && defined($rule->{tolerance}));
     }
-    
-    if ((exists($rule->{tolerance}) && defined($rule->{tolerance}))
-        ||
-        (exists($rule->{sheet_tolerance}) && defined($rule->{sheet_tolerance})))
+    else
     {
-        croak("ERROR: Missing key spec in the rule definitions.\n")
-            unless (exists($rule->{spec}) && defined($rule->{spec}));
-    }        
+        if ( (exists($rule->{sheet_tolerance}) && defined($rule->{sheet_tolerance}))
+             ||
+             (exists($rule->{tolerance}) && defined($rule->{tolerance})) )
+        {     
+            croak("ERROR: Missing key sheet/spec in the rule definitions.\n")
+                unless ((exists($rule->{sheet}) && defined($rule->{sheet}))
+                        ||
+                        (exists($rule->{spec}) && defined($rule->{spec})));
+        }                 
+    }
 }
 
 =head2 cmp_excel()
@@ -248,8 +257,9 @@ sub cmp_excel
         }
 
         my ($row, $col, @sheets);
-        @sheets = split(/\|/,$rule->{ignore}) 
-            if (exists($rule->{ignore}) && defined($rule->{ignore}));        
+        @sheets = split(/\|/,$rule->{sheet}) 
+            if (exists($rule->{sheet}) && defined($rule->{sheet}));
+            
         for ($row=$gotRowMin; $row<=$gotRowMax; $row++)
         {
             for ($col=$gotColMin; $col<=$gotColMax; $col++)
@@ -257,7 +267,13 @@ sub cmp_excel
                 my ($gotData, $expData);
                 $gotData = $gotWorkSheet->{Cells}[$row][$col]->{Val};
                 $expData = $expWorkSheet->{Cells}[$row][$col]->{Val};
-
+                
+                next if ( defined($spec) 
+                          && 
+                          exists($spec->{uc($gotSheetName)}->{$col+1}->{$row+1})
+                          &&
+                          ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $IGNORE) );
+                         
                 if (defined($gotData) && defined($expData))
                 {
                     if (($gotData =~ /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/)
@@ -271,27 +287,22 @@ sub cmp_excel
                         }
                         else
                         {
-                            if (defined($rule) && (ref($rule) eq 'HASH'))
+                            if (defined($rule))
                             {
                                 my ($compare_with, $difference);
+                                $difference = abs($expData - $gotData) / abs($expData);
+                                
                                 if ( ( defined($spec) 
-                                       && 
+                                       &&    
                                        exists($spec->{uc($gotSheetName)}->{$col+1}->{$row+1})
                                        &&
-                                       ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $IGNORE) 
+                                       ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $SPECIAL_CASE) 
                                      )
                                      ||
-                                     (scalar(@sheets) && grep(/$gotSheetName/,@sheets)) )
-                                {
-                                    # Data can be ignored.
-                                    next;
-                                }
-                                elsif ( defined($spec) 
-                                        &&    
-                                        exists($spec->{uc($gotSheetName)}->{$col+1}->{$row+1})
-                                        &&
-                                        ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $SPECIAL_CASE)
-                                      )
+                                     ( scalar(@sheets) 
+                                       && 
+                                       grep(/$gotSheetName/,@sheets)
+                                     ) )
                                 {
                                     $compare_with = $rule->{sheet_tolerance};
                                 }
@@ -300,22 +311,10 @@ sub cmp_excel
                                     $compare_with = $rule->{tolerance};
                                 }
                                 
-                                if (defined($compare_with))
+                                if ($compare_with < $difference)
                                 {
-                                    $difference = abs($expData - $gotData) / abs($expData);
-                                    if ($compare_with < $difference)
-                                    {
-                                        $Test->ok(0, $message);
-                                        return;
-                                    }
-                                }
-                                else
-                                {
-                                    if ($expData != $gotData)
-                                    {
-                                        $Test->ok(0, $message);
-                                        return;
-                                    }
+                                    $Test->ok(0, $message);
+                                    return;
                                 }
                             }
                             else
@@ -330,27 +329,20 @@ sub cmp_excel
                     }
                     else
                     {
-                        if (scalar(@sheets) && grep(/$gotSheetName/,@sheets))
+                        if (uc($gotData) ne uc($expData))
                         {
-                            # Ignore this sheet.
+                            $Test->ok(0, $message);
+                            return;
                         }
-                        else
-                        {
-                            if (uc($gotData) ne uc($expData))
-                            {
-                                $Test->ok(0, $message);
-                                return;
-                            }
-                        }    
                     }
-                }
+                }    
             } # col
         } # row
     } # sheet
 
     $Test->ok(1, $message);
 }
-
+        
 =head2 compare_excel()
 
 This function will tell you whether the two Excel files are "visually" 
@@ -438,8 +430,8 @@ sub compare_excel
         }
 
         my ($row, $col, @sheets);
-        @sheets = split(/\|/,$rule->{ignore}) 
-            if (exists($rule->{ignore}) && defined($rule->{ignore}));
+        @sheets = split(/\|/,$rule->{sheet}) 
+            if (exists($rule->{sheet}) && defined($rule->{sheet}));
             
         for ($row=$gotRowMin; $row<=$gotRowMax; $row++)
         {
@@ -448,7 +440,13 @@ sub compare_excel
                 my ($gotData, $expData);
                 $gotData = $gotWorkSheet->{Cells}[$row][$col]->{Val};
                 $expData = $expWorkSheet->{Cells}[$row][$col]->{Val};
-
+                
+                next if ( defined($spec) 
+                          && 
+                          exists($spec->{uc($gotSheetName)}->{$col+1}->{$row+1})
+                          &&
+                          ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $IGNORE) );
+                         
                 if (defined($gotData) && defined($expData))
                 {
                     if (($gotData =~ /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/)
@@ -462,28 +460,22 @@ sub compare_excel
                         }
                         else
                         {
-                            if (defined($rule) && (ref($rule) eq 'HASH'))
+                            if (defined($rule))
                             {
                                 my ($compare_with, $difference);
+                                $difference = abs($expData - $gotData) / abs($expData);
                                 
                                 if ( ( defined($spec) 
-                                       && 
+                                       &&    
                                        exists($spec->{uc($gotSheetName)}->{$col+1}->{$row+1})
-                                        &&
-                                       ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $IGNORE) 
+                                       &&
+                                       ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $SPECIAL_CASE) 
                                      )
                                      ||
-                                     (scalar(@sheets) && grep(/$gotSheetName/,@sheets)) )
-                                {
-                                    # Data can be ignored.
-                                    next;
-                                }
-                                elsif ( defined($spec) 
-                                        &&    
-                                        exists($spec->{uc($gotSheetName)}->{$col+1}->{$row+1})
-                                        &&
-                                        ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $SPECIAL_CASE)
-                                      )
+                                     ( scalar(@sheets) 
+                                       && 
+                                       grep(/$gotSheetName/,@sheets)
+                                     ) )
                                 {
                                     print "INFO: [NUMBER]:[$gotSheetName]:[SPC][".($row+1)."][".($col+1)."] ... "
                                         if $DEBUG > 1;
@@ -496,30 +488,14 @@ sub compare_excel
                                     $compare_with = $rule->{tolerance};
                                 }
                                 
-                                if (defined($compare_with))
+                                if ($compare_with < $difference)
                                 {
-                                    $difference = abs($expData - $gotData) / abs($expData);
-                                    if ($compare_with < $difference)
-                                    {
-                                        $difference = sprintf("%02f", $difference);
-                                        $error = "ERROR: [NUMBER]:[$gotSheetName]:Expected: [$expData] Got: [$gotData] Diff [$difference].\n";
-                                        _dump_error($error);
-                                        return 0;
-                                    }
-                                    print "[PASS]\n" if $DEBUG > 1;
+                                    $difference = sprintf("%02f", $difference);
+                                    $error = "ERROR: [NUMBER]:[$gotSheetName]:Expected: [$expData] Got: [$gotData] Diff [$difference].\n";
+                                    _dump_error($error);
+                                    return 0;
                                 }
-                                else
-                                {
-                                    print "INFO: [NUMBER]:[$gotSheetName]:[N/A][".($row+1)."][".($col+1)."] ... "
-                                        if $DEBUG > 1;
-                                    if ($expData != $gotData)
-                                    {
-                                        $error = "ERROR: [NUMBER]:[$gotSheetName]:Expected: [$expData] Got: [$gotData].\n";
-                                        _dump_error($error);
-                                        return 0;
-                                    }
-                                    print "[PASS]\n" if $DEBUG > 1;
-                                }
+                                print "[PASS]\n" if $DEBUG > 1;
                             }
                             else
                             {
@@ -532,29 +508,22 @@ sub compare_excel
                                     return 0;
                                 }
                                 print "[PASS]\n" if $DEBUG > 1;
-                            }    
+                            }
                         }
                     }
                     else
                     {
-                        if (scalar(@sheets) && grep(/$gotSheetName/,@sheets))
+                        if (uc($gotData) ne uc($expData))
                         {
-                            # Ignore this sheet.
+                            $error = "ERROR: [STRING]:[$gotSheetName]: Expected [$expData] Got [$gotData].\n";
+                            _dump_error($error);
+                            return 0;
                         }
                         else
                         {
-                            if (uc($gotData) ne uc($expData))
-                            {
-                                $error = "ERROR: [STRING]:[$gotSheetName]: Expected [$expData] Got [$gotData].\n";
-                                _dump_error($error);
-                                return 0;
-                            }
-                            else
-                            {
-                                print "INFO: [STRING]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."] ... [PASS]\n"
-                                    if $DEBUG > 1;
-                            }
-                        }    
+                            print "INFO: [STRING]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."] ... [PASS]\n"
+                                if $DEBUG > 1;
+                        }
                     }
                 }    
             } # col

@@ -1,5 +1,11 @@
 Revision history for Perl extension Test::Excel.
 
+0.09    Thu Nov 11 15:33:19 2010
+        - Updated the rule definitions one more time, silly me :-(
+        - Fixed unit test 30_compare_excel.t and 40_unit_test.t and 50_spec_test.t
+          to reflect the change in rule definitions.
+        - Updated method _validate_rule() to reflect the change in rule definitions.
+
 0.08    Thu Nov 11 09:53:01 2010
         - Renamed the key 'sheet' to 'ignore' in the rule definitions.
         - Handling correctly when more than one sheets are specified in the rule definitions.

@@ -10,13 +10,13 @@ use File::Spec::Functions;
 is(compare_excel(
     catfile('t', 'got-4.xls'),
     catfile('t', 'exp-4.xls'),
-    { ignore => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-1.txt') }
+    { sheet => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-1.txt') }
 ), 1);
 
 is(compare_excel(
     catfile('t', 'got-5.xls'),
     catfile('t', 'exp-5.xls'),
-    { ignore => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-2.txt') }
+    { sheet => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-2.txt') }
 ), 1);
 
 is(compare_excel(
@@ -34,13 +34,13 @@ is(compare_excel(
 cmp_excel(
     catfile('t', 'got-4.xls'),
     catfile('t', 'exp-4.xls'),
-    { ignore => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-1.txt') }
+    { sheet => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-1.txt') }
 );
 
 cmp_excel(
     catfile('t', 'got-5.xls'),
     catfile('t', 'exp-5.xls'),
-    { ignore => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-2.txt') }
+    { sheet => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-2.txt') }
 );
 
 cmp_excel(
@@ -58,5 +58,5 @@ cmp_excel(
 is(compare_excel(
     catfile('t', 'got-6.xls'),
     catfile('t', 'exp-6.xls'),
-    { ignore => 'MySheet2|MySheet3' }
+    { sheet => 'MySheet2|MySheet3', tolerance => 10**-12, sheet_tolerance => 0.20 }
 ), 1);
