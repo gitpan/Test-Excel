@@ -22,11 +22,11 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 $|=1;
 
@@ -72,7 +72,7 @@ method cmp_excel()).
 
 =over 5
 
-=item sheet: "|" seperated sheet name.
+=item ignore: "|" seperated sheet name.
 
 These sheets would be ignored completely.
 Example: 'Sheet1|Sheet2'
@@ -147,7 +147,7 @@ sub _validate_rule
     if ($keys == 1)
     {    
         croak("ERROR: Invalid key found in the rule definitions.\n")
-            unless (exists($rule->{message}) || (exists($rule->{sheet})));
+            unless (exists($rule->{message}) || (exists($rule->{ignore})));
         return;    
     }
     
@@ -247,7 +247,9 @@ sub cmp_excel
             return;
         }
 
-        my ($row, $col);
+        my ($row, $col, @sheets);
+        @sheets = split(/\|/,$rule->{ignore}) 
+            if (exists($rule->{ignore}) && defined($rule->{ignore}));        
         for ($row=$gotRowMin; $row<=$gotRowMax; $row++)
         {
             for ($col=$gotColMin; $col<=$gotColMax; $col++)
@@ -271,8 +273,7 @@ sub cmp_excel
                         {
                             if (defined($rule) && (ref($rule) eq 'HASH'))
                             {
-                                my ($compare_with, $sheet, $difference);
-                                $sheet = $rule->{sheet}; 
+                                my ($compare_with, $difference);
                                 if ( ( defined($spec) 
                                        && 
                                        exists($spec->{uc($gotSheetName)}->{$col+1}->{$row+1})
@@ -280,7 +281,7 @@ sub cmp_excel
                                        ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $IGNORE) 
                                      )
                                      ||
-                                     (defined($sheet) && ($gotSheetName =~ /$sheet/)) )
+                                     (scalar(@sheets) && grep(/$gotSheetName/,@sheets)) )
                                 {
                                     # Data can be ignored.
                                     next;
@@ -329,11 +330,18 @@ sub cmp_excel
                     }
                     else
                     {
-                        if (uc($gotData) ne uc($expData))
+                        if (scalar(@sheets) && grep(/$gotSheetName/,@sheets))
                         {
-                            $Test->ok(0, $message);
-                            return;
+                            # Ignore this sheet.
                         }
+                        else
+                        {
+                            if (uc($gotData) ne uc($expData))
+                            {
+                                $Test->ok(0, $message);
+                                return;
+                            }
+                        }    
                     }
                 }
             } # col
@@ -429,7 +437,10 @@ sub compare_excel
             return 0;
         }
 
-        my ($row, $col);
+        my ($row, $col, @sheets);
+        @sheets = split(/\|/,$rule->{ignore}) 
+            if (exists($rule->{ignore}) && defined($rule->{ignore}));
+            
         for ($row=$gotRowMin; $row<=$gotRowMax; $row++)
         {
             for ($col=$gotColMin; $col<=$gotColMax; $col++)
@@ -453,8 +464,8 @@ sub compare_excel
                         {
                             if (defined($rule) && (ref($rule) eq 'HASH'))
                             {
-                                my ($compare_with, $sheet, $difference);
-                                $sheet = $rule->{sheet}; 
+                                my ($compare_with, $difference);
+                                
                                 if ( ( defined($spec) 
                                        && 
                                        exists($spec->{uc($gotSheetName)}->{$col+1}->{$row+1})
@@ -462,7 +473,7 @@ sub compare_excel
                                        ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $IGNORE) 
                                      )
                                      ||
-                                     (defined($sheet) && ($gotSheetName =~ /$sheet/)) )
+                                     (scalar(@sheets) && grep(/$gotSheetName/,@sheets)) )
                                 {
                                     # Data can be ignored.
                                     next;
@@ -526,17 +537,24 @@ sub compare_excel
                     }
                     else
                     {
-                        if (uc($gotData) ne uc($expData))
+                        if (scalar(@sheets) && grep(/$gotSheetName/,@sheets))
                         {
-                            $error = "ERROR: [STRING]:[$gotSheetName]: Expected [$expData] Got [$gotData].\n";
-                            _dump_error($error);
-                            return 0;
+                            # Ignore this sheet.
                         }
                         else
                         {
-                            print "INFO: [STRING]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."] ... [PASS]\n"
-                                if $DEBUG > 1;
-                        }
+                            if (uc($gotData) ne uc($expData))
+                            {
+                                $error = "ERROR: [STRING]:[$gotSheetName]: Expected [$expData] Got [$gotData].\n";
+                                _dump_error($error);
+                                return 0;
+                            }
+                            else
+                            {
+                                print "INFO: [STRING]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."] ... [PASS]\n"
+                                    if $DEBUG > 1;
+                            }
+                        }    
                     }
                 }    
             } # col

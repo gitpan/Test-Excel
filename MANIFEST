@@ -22,6 +22,8 @@ t/exp-4.xls
 t/got-4.xls
 t/exp-5.xls
 t/got-5.xls
+t/exp-6.xls
+t/got-6.xls
 t/pod.t
 t/spec-1.txt
 t/spec-2.txt

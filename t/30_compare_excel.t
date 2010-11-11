@@ -16,19 +16,19 @@ is(compare_excel(
 is(compare_excel(
     catfile('t', 'got-1.xls'),
     catfile('t', 'exp-1.xls'),
-    { sheet => 'Ignore' }
+    { ignore => 'Ignore' }
 ), 1);
 
 is(compare_excel(
     catfile('t', 'got-2.xls'),
     catfile('t', 'exp-2.xls'),
-    { sheet => 'Ignore' }
+    { ignore => 'Ignore' }
 ), 0);
 
 is(compare_excel(
     catfile('t', 'got-3.xls'),
     catfile('t', 'exp-3.xls'),
-    { sheet => 'Ignore' }
+    { ignore => 'Ignore' }
 ), 0);
 
 done_testing();
