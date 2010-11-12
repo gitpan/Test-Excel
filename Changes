@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::Excel.
 
+1.01    Fri Nov 12 09:57:43 2010
+        - Renamed internal method _dump_error() to _log_message().
+        - Added one debug line to the method compare_excel().
+
 0.09    Thu Nov 11 15:33:19 2010
         - Updated the rule definitions one more time, silly me :-(
         - Fixed unit test 30_compare_excel.t and 40_unit_test.t and 50_spec_test.t

@@ -22,11 +22,11 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 0.09
+Version 1.01
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '1.01';
 
 $|=1;
 
@@ -143,17 +143,17 @@ sub _validate_rule
     my ($keys, $valid);
     $keys = scalar(keys(%{$rule}));
     return if (($keys == 1) && exists($rule->{message}));
-    
+
     croak("ERROR: Rule has more than 5 keys defined.\n")
         if $keys > 5;
-        
+
     $valid = {'message' => 1,'sheet' => 1, 'spec' => 1, 'tolerance' => 1,'sheet_tolerance' => 1};
     foreach (keys %{$rule})
     {
         croak("ERROR: Invalid key found in the rule definitions.\n")
             unless exists($valid->{$_});
     }
-                
+
     if ((exists($rule->{spec}) && defined($rule->{spec}))
         ||
         (exists($rule->{sheet}) && defined($rule->{sheet})))
@@ -173,7 +173,7 @@ sub _validate_rule
                 unless ((exists($rule->{sheet}) && defined($rule->{sheet}))
                         ||
                         (exists($rule->{spec}) && defined($rule->{spec})));
-        }                 
+        }
     }
 }
 
@@ -195,7 +195,7 @@ sub cmp_excel
 
     croak("ERROR: Unable to locate got file.\n") unless (-f $got);
     croak("ERROR: Unable to locate expected file.\n") unless (-f $exp);
-    
+
     unless (blessed($got) && $got->isa('Spreadsheet::ParseExcel::WorkBook'))
     {
         $got = Spreadsheet::ParseExcel::Workbook->Parse($got)
@@ -208,7 +208,7 @@ sub cmp_excel
     }
 
     my (@gotWorkSheets, @expWorkSheets, $error, $spec, $message);
-    
+
     _validate_rule($rule);
     $spec    = parse($rule->{spec}) if exists($rule->{spec});
     $message = $rule->{message}     if exists($rule->{message});
@@ -293,7 +293,7 @@ sub cmp_excel
                                 $difference = abs($expData - $gotData) / abs($expData);
                                 
                                 if ( ( defined($spec) 
-                                       &&    
+                                       &&
                                        exists($spec->{uc($gotSheetName)}->{$col+1}->{$row+1})
                                        &&
                                        ($spec->{uc($gotSheetName)}->{$col+1}->{$row+1} == $SPECIAL_CASE) 
@@ -307,7 +307,7 @@ sub cmp_excel
                                     $compare_with = $rule->{sheet_tolerance};
                                 }
                                 else
-                                {        
+                                {
                                     $compare_with = $rule->{tolerance};
                                 }
                                 
@@ -335,7 +335,7 @@ sub cmp_excel
                             return;
                         }
                     }
-                }    
+                }
             } # col
         } # row
     } # sheet
@@ -361,7 +361,8 @@ sub compare_excel
 
     croak("ERROR: Unable to locate got file.\n") unless (-f $got);
     croak("ERROR: Unable to locate expected file.\n") unless (-f $exp);
-    
+    _log_message("INFO: Excel comparison [$got] [$exp]\n") if $DEBUG;
+
     unless (blessed($got) && $got->isa('Spreadsheet::ParseExcel::WorkBook'))
     {
         $got = Spreadsheet::ParseExcel::Workbook->Parse($got)
@@ -374,9 +375,8 @@ sub compare_excel
     }
 
     my (@gotWorkSheets, @expWorkSheets, $error, $spec);
-    
-    _validate_rule($rule);
 
+    _validate_rule($rule);
     $spec = parse($rule->{spec}) if (exists $rule->{spec});
 
     @gotWorkSheets = $got->worksheets();
@@ -386,7 +386,7 @@ sub compare_excel
     {
         $error = "ERROR: Sheets count mismatch. ";
         $error .= "Got: [".scalar(@gotWorkSheets)."] exp: [".scalar(@expWorkSheets)."]\n";
-        _dump_error($error);
+        _log_message($error);
         return 0;
     }
 
@@ -405,7 +405,7 @@ sub compare_excel
         if (uc($gotSheetName) ne uc($expSheetName))
         {
             $error = "ERROR: Sheetname mismatch. Got: [$gotSheetName] exp: [$expSheetName].\n";
-            _dump_error($error);
+            _log_message($error);
             return 0;
         }
 
@@ -418,21 +418,21 @@ sub compare_excel
         {
             $error = "ERROR: Max row counts mismatch in sheet [$gotSheetName]. ";
             $error .= "Got[$gotRowMax] Expected: [$expRowMax]\n";
-            _dump_error($error);
+            _log_message($error);
             return 0;
         }
         if (defined($gotColMax) &&  defined($expColMax) && ($gotColMax != $expColMax))
         {
             $error = "ERROR: Max column counts mismatch in sheet [$gotSheetName]. ";
             $error .= "Got[$gotColMax] Expected: [$expColMax]\n";
-            _dump_error($error);
+            _log_message($error);
             return 0;
         }
 
         my ($row, $col, @sheets);
         @sheets = split(/\|/,$rule->{sheet}) 
             if (exists($rule->{sheet}) && defined($rule->{sheet}));
-            
+
         for ($row=$gotRowMin; $row<=$gotRowMax; $row++)
         {
             for ($col=$gotColMin; $col<=$gotColMax; $col++)
@@ -487,12 +487,12 @@ sub compare_excel
                                         if $DEBUG > 1;
                                     $compare_with = $rule->{tolerance};
                                 }
-                                
+
                                 if ($compare_with < $difference)
                                 {
                                     $difference = sprintf("%02f", $difference);
                                     $error = "ERROR: [NUMBER]:[$gotSheetName]:Expected: [$expData] Got: [$gotData] Diff [$difference].\n";
-                                    _dump_error($error);
+                                    _log_message($error);
                                     return 0;
                                 }
                                 print "[PASS]\n" if $DEBUG > 1;
@@ -504,7 +504,7 @@ sub compare_excel
                                 if ($expData != $gotData)
                                 {
                                     $error = "ERROR: [NUMBER]:[$gotSheetName]:Expected: [$expData] Got: [$gotData].\n";
-                                    _dump_error($error);
+                                    _log_message($error);
                                     return 0;
                                 }
                                 print "[PASS]\n" if $DEBUG > 1;
@@ -516,7 +516,7 @@ sub compare_excel
                         if (uc($gotData) ne uc($expData))
                         {
                             $error = "ERROR: [STRING]:[$gotSheetName]: Expected [$expData] Got [$gotData].\n";
-                            _dump_error($error);
+                            _log_message($error);
                             return 0;
                         }
                         else
@@ -525,7 +525,7 @@ sub compare_excel
                                 if $DEBUG > 1;
                         }
                     }
-                }    
+                }
             } # col
         } # row
         print "INFO: [$gotSheetName]: ..... [OK].\n" if $DEBUG == 1;
@@ -552,7 +552,7 @@ sub parse
 {
     my $spec = shift;
     return unless defined $spec;
-    
+
     croak("ERROR: Unable to locate spec file.\n")
         unless (-f $spec);
 
@@ -608,7 +608,7 @@ This method accepts a cell address and returns column and row address as a list.
     my $cell = 'A23';
     my ($col, $row) = Test::Excel::column_row($cell);
 
-    # You should expect these values:    
+    # You should expect these values:
     # $col => 'A'
     # $row => 23
 
@@ -713,13 +713,13 @@ sub cells_within_range
     return $cells;
 }
 
-=head2 _dump_error()
+=head2 _log_message()
 
 This is an internal method that dumps the message to STDOUT.
 
 =cut
 
-sub _dump_error
+sub _log_message
 {
     my $message = shift;
     return unless defined($message);
