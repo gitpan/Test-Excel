@@ -14,7 +14,7 @@ use Spreadsheet::ParseExcel::Utility qw(int2col col2int);
 require Exporter;
 
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(cmp_excel compare_excel column_row letter_to_number number_to_letter cells_within_range);
+our @EXPORT = qw(cmp compare column_row letter_to_number number_to_letter cells_within_range);
 
 =head1 NAME
 
@@ -22,11 +22,11 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 1.01
+Version 1.02
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 $|=1;
 
@@ -40,35 +40,35 @@ Readonly my $SPECIAL_CASE => 2;
   use Test::More no_plan => 1;
   use Test::Excel;
 
-  cmp_excel('foo.xls', 'bar.xls', { message => 'EXCELSs are identical.' });
+  cmp('foo.xls', 'bar.xls', { message => 'EXCELSs are identical.' });
 
   # or
 
   my $foo = Spreadsheet::ParseExcel::Workbook->Parse('foo.xls');
   my $bar = Spreadsheet::ParseExcel::Workbook->Parse('bar.xls');
-  cmp_excel($foo, $bar, { message => 'EXCELs are identical.' });
+  cmp($foo, $bar, { message => 'EXCELs are identical.' });
 
   # or even in standalone mode:
 
   use Test::Excel;
   print "EXCELs are identical.\n"
-      if compare_excel("foo.xls", "bar.xls");
+      if compare("foo.xls", "bar.xls");
 
 =head1 DESCRIPTION
 
 This module is meant to be used for testing custom generated Excel files, it 
-provides two functions at the moment, which is C<cmp_excel> and C<compare_excel>. 
+provides two functions at the moment, which is C<cmp> and C<compare>. 
 These can be used to compare two Excel files to see if they are I<visually> 
-similar. The function C<cmp_excel> is for testing purpose where function C<compare_excel>
+similar. The function C<cmp> is for testing purpose where function C<compare>
 can be used as standalone. Future versions may include other testing functions.
 
 =head2 Definition of Rule
 
-The new paramter has been added to both method cmp_excel() and method compare_excel() 
-called rule. This is optional, however, this would allow to apply your own rule for
-comparison. This should be passed in as reference to a HASH with the keys 'sheet',
-'tolerance', 'sheet_tolerance' and optionally 'message'(only relevant to 
-method cmp_excel()).
+The new paramter has been added to both method cmp() and method compare() 
+called rule. This is optional, however, this would allow to apply your own rule 
+for comparison. This should be passed in as reference to a HASH with the keys 
+'sheet', 'tolerance', 'sheet_tolerance' and optionally 'message'(only relevant 
+to method cmp()).
 
 =over 5
 
@@ -79,9 +79,8 @@ Example: 'Sheet1|Sheet2'
 
 =item tolerance: Number.
 
-This would apply to all the NUMBERS found on all sheets in the excel 
-except the one specified by the key sheet and by the title sheet in the
-the spec file.
+This would apply to all the NUMBERS found on all sheets in the excel except the 
+one specified by the key sheet and by the title sheet in the spec file.
 Example: 10**-12
 
 =item sheet_tolerance: Number.
@@ -97,7 +96,7 @@ This would have the path to the spec file to be used in comparing excel file.
 
 =item message: String (Optional)
 
-Test message to be displayed. Only required when calling method cmp_excel().
+Test message to be displayed. Only required when calling method cmp().
 
 =back
 
@@ -177,24 +176,23 @@ sub _validate_rule
     }
 }
 
-=head2 cmp_excel()
+=head2 cmp()
 
 This function will tell you whether the two Excel files are "visually" 
 different, ignoring differences in embedded fonts/images and metadata.
-
 Both $got and $expected can be either instances of Spreadsheet::ParseExcel 
 or a file path (which is in turn passed to the Spreadsheet::ParseExcel constructor).
 
 =cut
 
-sub cmp_excel
+sub cmp
 {
     my $got  = shift;
     my $exp  = shift;
     my $rule = shift;
 
-    croak("ERROR: Unable to locate got file.\n") unless (-f $got);
-    croak("ERROR: Unable to locate expected file.\n") unless (-f $exp);
+    croak("ERROR: Unable to locate file [$got].\n") unless (-f $got);
+    croak("ERROR: Unable to locate file [$exp].\n") unless (-f $exp);
 
     unless (blessed($got) && $got->isa('Spreadsheet::ParseExcel::WorkBook'))
     {
@@ -343,7 +341,7 @@ sub cmp_excel
     $Test->ok(1, $message);
 }
         
-=head2 compare_excel()
+=head2 compare()
 
 This function will tell you whether the two Excel files are "visually" 
 different, ignoring differences in embedded fonts/images and metadata in standalone mode.
@@ -353,14 +351,14 @@ or a file path (which is in turn passed to the Spreadsheet::ParseExcel construct
 
 =cut
 
-sub compare_excel
+sub compare
 {
     my $got  = shift;
     my $exp  = shift;
     my $rule = shift;
 
-    croak("ERROR: Unable to locate got file.\n") unless (-f $got);
-    croak("ERROR: Unable to locate expected file.\n") unless (-f $exp);
+    croak("ERROR: Unable to locate file [$got].\n") unless (-f $got);
+    croak("ERROR: Unable to locate file [$exp].\n") unless (-f $exp);
     _log_message("INFO: Excel comparison [$got] [$exp]\n") if $DEBUG;
 
     unless (blessed($got) && $got->isa('Spreadsheet::ParseExcel::WorkBook'))
@@ -553,7 +551,7 @@ sub parse
     my $spec = shift;
     return unless defined $spec;
 
-    croak("ERROR: Unable to locate spec file.\n")
+    croak("ERROR: Unable to locate spec file [$spec].\n")
         unless (-f $spec);
 
     my ($handle, $row, $sheet, $cells, $data);    
