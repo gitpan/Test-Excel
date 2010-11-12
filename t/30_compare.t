@@ -2,7 +2,7 @@
 
 use strict; use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 7;
 use File::Spec::Functions;
 
 BEGIN { use_ok('Test::Excel'); }
@@ -29,6 +29,18 @@ is(compare(
     catfile('t', 'got-3.xls'),
     catfile('t', 'exp-3.xls'),
     { sheet => 'MySheet1|MySheet2', tolerance => 10**-12, sheet_tolerance => 0.20 }
+), 0);
+
+is(compare(
+    catfile('t', 'got-7.xls'),
+    catfile('t', 'exp-7.xls'),
+    { swap_check => 1, error_limit => 2, sheet => 'MySheet1|MySheet2', tolerance => 10**-12, sheet_tolerance => 0.20 }
+), 1);
+
+is(compare(
+    catfile('t', 'got-7.xls'),
+    catfile('t', 'exp-7.xls'),
+    { swap_check => 0, error_limit => 2, sheet => 'MySheet1|MySheet2', tolerance => 10**-12, sheet_tolerance => 0.20 }
 ), 0);
 
 done_testing();

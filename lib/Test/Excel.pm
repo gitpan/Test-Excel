@@ -22,18 +22,19 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 1.02
+Version 1.03
 
 =cut
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 $|=1;
 
 our $DEBUG = 0;
-Readonly my $ALMOST_ZERO  => 10**-16;
-Readonly my $IGNORE       => 1;
-Readonly my $SPECIAL_CASE => 2;
+Readonly my $ALMOST_ZERO          => 10**-16;
+Readonly my $IGNORE               => 1;
+Readonly my $SPECIAL_CASE         => 2;
+Readonly my $MAX_ERRORS_PER_SHEET => 0;
 
 =head1 SYNOPSIS
 
@@ -70,7 +71,7 @@ for comparison. This should be passed in as reference to a HASH with the keys
 'sheet', 'tolerance', 'sheet_tolerance' and optionally 'message'(only relevant 
 to method cmp()).
 
-=over 5
+=over 7
 
 =item sheet: "|" seperated sheet name.
 
@@ -93,6 +94,15 @@ Example: 0.20
 =item spec: Path to the spec file.
 
 This would have the path to the spec file to be used in comparing excel file.
+
+=item swap_check: Number (Optional).
+
+Set it to 1 if you want to do swap check. The default is 0. Swap check ignores
+if the row has been swaped around in the same sheet.
+
+=item error_limit: Number (Optional).
+
+Limit the error per sheet. Default is 0.
 
 =item message: String (Optional)
 
@@ -143,10 +153,16 @@ sub _validate_rule
     $keys = scalar(keys(%{$rule}));
     return if (($keys == 1) && exists($rule->{message}));
 
-    croak("ERROR: Rule has more than 5 keys defined.\n")
-        if $keys > 5;
+    croak("ERROR: Rule has more than 7 keys defined.\n")
+        if $keys > 7;
 
-    $valid = {'message' => 1,'sheet' => 1, 'spec' => 1, 'tolerance' => 1,'sheet_tolerance' => 1};
+    $valid = {'message'         => 1,
+              'sheet'           => 1, 
+              'spec'            => 1, 
+              'tolerance'       => 1,
+              'sheet_tolerance' => 1,
+              'error_limit'     => 1,
+              'swap_check'      => 1,};
     foreach (keys %{$rule})
     {
         croak("ERROR: Invalid key found in the rule definitions.\n")
@@ -176,10 +192,11 @@ sub _validate_rule
     }
 }
 
-=head2 cmp()
+=head2 cmp($got, $exp, { ...rule... })
 
 This function will tell you whether the two Excel files are "visually" 
 different, ignoring differences in embedded fonts/images and metadata.
+
 Both $got and $expected can be either instances of Spreadsheet::ParseExcel 
 or a file path (which is in turn passed to the Spreadsheet::ParseExcel constructor).
 
@@ -205,11 +222,15 @@ sub cmp
             || croak("ERROR: Couldn't create Spreadsheet::ParseExcel::WorkBook instance with: [$exp]\n");
     }
 
-    my (@gotWorkSheets, @expWorkSheets, $error, $spec, $message);
-
+    my (@gotWorkSheets, @expWorkSheets);
+    my ($message, $status, $error_limit, $swap, $spec);
+    
+    $status = 1;
     _validate_rule($rule);
-    $spec    = parse($rule->{spec}) if exists($rule->{spec});
-    $message = $rule->{message}     if exists($rule->{message});
+    $spec = parse($rule->{spec})  if (exists $rule->{spec});
+    $error_limit = $rule->{limit} if (exists $rule->{error_limit});
+    $message = $rule->{message}   if exists($rule->{message});
+    $error_limit = $MAX_ERRORS_PER_SHEET unless defined $error_limit;
 
     @gotWorkSheets = $got->worksheets();
     @expWorkSheets = $exp->worksheets();
@@ -217,25 +238,27 @@ sub cmp
     if (scalar(@gotWorkSheets) != scalar(@expWorkSheets))
     {
         $Test->ok(0, $message);
-        return;
+        return 0;
     }
 
     my ($i);
     for ($i=0; $i<scalar(@gotWorkSheets); $i++)
     {
+        my ($error_on_sheet);
         my ($gotWorkSheet, $expWorkSheet);
         my ($gotSheetName, $expSheetName);
         my ($gotRowMin, $gotRowMax, $gotColMin, $gotColMax);
         my ($expRowMin, $expRowMax, $expColMin, $expColMax);
 
-        $gotWorkSheet = $gotWorkSheets[$i];
-        $expWorkSheet = $expWorkSheets[$i];
-        $gotSheetName = $gotWorkSheet->get_name();
-        $expSheetName = $expWorkSheet->get_name();
+        $error_on_sheet = 0;
+        $gotWorkSheet   = $gotWorkSheets[$i];
+        $expWorkSheet   = $expWorkSheets[$i];
+        $gotSheetName   = $gotWorkSheet->get_name();
+        $expSheetName   = $expWorkSheet->get_name();
         if (uc($gotSheetName) ne uc($expSheetName))
         {
             $Test->ok(0, $message);
-            return;
+            return 0;
         }
 
         ($gotRowMin, $gotRowMax) = $gotWorkSheet->row_range();
@@ -246,12 +269,12 @@ sub cmp
         if (defined($gotRowMax) && defined($expRowMax) && ($gotRowMax != $expRowMax))
         {
             $Test->ok(0, $message);
-            return;
+            return 0;
         }
         if (defined($gotColMax) &&  defined($expColMax) && ($gotColMax != $expColMax))
         {
             $Test->ok(0, $message);
-            return;
+            return 0;
         }
 
         my ($row, $col, @sheets);
@@ -311,16 +334,30 @@ sub cmp
                                 
                                 if ($compare_with < $difference)
                                 {
-                                    $Test->ok(0, $message);
-                                    return;
+                                    if (exists($rule->{swap_check}) && defined($rule->{swap_check}) && ($rule->{swap_check}))                                
+                                    {
+                                        $status = 0;
+                                    }
+                                    else
+                                    {
+                                        $Test->ok(0, $message);
+                                        return 0;
+                                    }    
                                 }
                             }
                             else
                             {
                                 if ($expData != $gotData)
                                 {
-                                    $Test->ok(0, $message);
-                                    return;
+                                    if (exists($rule->{swap_check}) && defined($rule->{swap_check}) && ($rule->{swap_check}))                                
+                                    {
+                                        $status = 0;
+                                    }
+                                    else
+                                    {
+                                        $Test->ok(0, $message);
+                                        return 0;
+                                    }    
                                 }
                             }
                         }
@@ -329,25 +366,69 @@ sub cmp
                     {
                         if (uc($gotData) ne uc($expData))
                         {
-                            $Test->ok(0, $message);
-                            return;
+                            if (exists($rule->{swap_check}) && defined($rule->{swap_check}) && ($rule->{swap_check}))
+                            {
+                                $status = 0;
+                            }
+                            else
+                            {
+                                $Test->ok(0, $message);
+                                return 0;
+                            }
                         }
+                    }
+                }
+                if (exists($rule->{swap_check}) && defined($rule->{swap_check}) && ($rule->{swap_check}))
+                {
+                    if ($status == 0)
+                    {
+                        $status = 0;
+                        $error_on_sheet++;
+                        push @{$swap->{exp}->{number_to_letter($col-1)}}, $expData;
+                        push @{$swap->{got}->{number_to_letter($col-1)}}, $gotData;
+                    }
+                }
+                else
+                {
+                    unless ($status)
+                    {
+                        $Test->ok(0, $message);
+                        return 0;
                     }
                 }
             } # col
         } # row
+        
+        if( ($error_on_sheet > $error_limit) && !($error_on_sheet % 2) && !is_swapping($swap))
+        {
+            $Test->ok(0, $message);
+            return 0;
+        }
+        if (($error_on_sheet > 0) && is_swapping($swap))
+        {
+            $status = 1;
+        }
     } # sheet
 
-    $Test->ok(1, $message);
+    if ($status)
+    {
+        $Test->ok(1, $message);
+        return 1;
+    }
+    else
+    {
+        $Test->ok(0, $message);
+        return 0;
+    }
 }
         
-=head2 compare()
+=head2 compare($got, $exp, { ...rule... })
 
 This function will tell you whether the two Excel files are "visually" 
 different, ignoring differences in embedded fonts/images and metadata in standalone mode.
 
-Both $got and $expected can be either instances of Spreadsheet::ParseExcel 
-or a file path (which is in turn passed to the Spreadsheet::ParseExcel constructor).
+Both $got and $exp can be either instances of Spreadsheet::ParseExcel or a file 
+path (which is in turn passed to the Spreadsheet::ParseExcel constructor).
 
 =cut
 
@@ -372,10 +453,14 @@ sub compare
             || croak("ERROR: Couldn't create Spreadsheet::ParseExcel::WorkBook instance with: [$exp]\n");
     }
 
-    my (@gotWorkSheets, @expWorkSheets, $error, $spec);
-
+    my (@gotWorkSheets, @expWorkSheets);
+    my ($status, $error, $error_limit, $swap, $spec);
+    
+    $status = 1;
     _validate_rule($rule);
-    $spec = parse($rule->{spec}) if (exists $rule->{spec});
+    $spec = parse($rule->{spec})  if (exists $rule->{spec});
+    $error_limit = $rule->{limit} if (exists $rule->{error_limit});
+    $error_limit = $MAX_ERRORS_PER_SHEET unless defined $error_limit;
 
     @gotWorkSheets = $got->worksheets();
     @expWorkSheets = $exp->worksheets();
@@ -391,15 +476,17 @@ sub compare
     my ($i);
     for ($i=0; $i<scalar(@gotWorkSheets); $i++)
     {
+        my ($error_on_sheet);
         my ($gotWorkSheet, $expWorkSheet);
         my ($gotSheetName, $expSheetName);
         my ($gotRowMin, $gotRowMax, $gotColMin, $gotColMax);
         my ($expRowMin, $expRowMax, $expColMin, $expColMax);
 
-        $gotWorkSheet = $gotWorkSheets[$i];
-        $expWorkSheet = $expWorkSheets[$i];
-        $gotSheetName = $gotWorkSheet->get_name();
-        $expSheetName = $expWorkSheet->get_name();
+        $error_on_sheet = 0;
+        $gotWorkSheet   = $gotWorkSheets[$i];
+        $expWorkSheet   = $expWorkSheets[$i];
+        $gotSheetName   = $gotWorkSheet->get_name();
+        $expSheetName   = $expWorkSheet->get_name();
         if (uc($gotSheetName) ne uc($expSheetName))
         {
             $error = "ERROR: Sheetname mismatch. Got: [$gotSheetName] exp: [$expSheetName].\n";
@@ -489,11 +576,14 @@ sub compare
                                 if ($compare_with < $difference)
                                 {
                                     $difference = sprintf("%02f", $difference);
-                                    $error = "ERROR: [NUMBER]:[$gotSheetName]:Expected: [$expData] Got: [$gotData] Diff [$difference].\n";
+                                    $error .= "ERROR: [NUMBER]:[$gotSheetName]:Expected:[$expData]Got:[$gotData]Diff:[$difference].\n";
                                     _log_message($error);
-                                    return 0;
+                                    $status = 0;
                                 }
-                                print "[PASS]\n" if $DEBUG > 1;
+                                else
+                                {
+                                    print "[PASS]\n" if $DEBUG > 1;
+                                }    
                             }
                             else
                             {
@@ -501,11 +591,14 @@ sub compare
                                     if $DEBUG > 1;
                                 if ($expData != $gotData)
                                 {
-                                    $error = "ERROR: [NUMBER]:[$gotSheetName]:Expected: [$expData] Got: [$gotData].\n";
+                                    $error .= "ERROR: [NUMBER]:[$gotSheetName]:Expected:[$expData]Got:[$gotData].\n";
                                     _log_message($error);
-                                    return 0;
+                                    $status = 0;
                                 }
-                                print "[PASS]\n" if $DEBUG > 1;
+                                else
+                                {
+                                    print "[PASS]\n" if $DEBUG > 1;
+                                }    
                             }
                         }
                     }
@@ -513,9 +606,9 @@ sub compare
                     {
                         if (uc($gotData) ne uc($expData))
                         {
-                            $error = "ERROR: [STRING]:[$gotSheetName]: Expected [$expData] Got [$gotData].\n";
+                            $error .= "ERROR: [STRING]:[$gotSheetName]:Expected:[$expData]Got:[$gotData].\n";
                             _log_message($error);
-                            return 0;
+                            $status = 0;
                         }
                         else
                         {
@@ -524,11 +617,55 @@ sub compare
                         }
                     }
                 }
+                
+                if (exists($rule->{swap_check}) && defined($rule->{swap_check}) && ($rule->{swap_check}))
+                {
+                    if (defined($error))
+                    {
+                        $status = 0;
+                        $error_on_sheet++;
+                        push @{$swap->{exp}->{number_to_letter($col-1)}}, $expData;
+                        push @{$swap->{got}->{number_to_letter($col-1)}}, $gotData;
+                    }
+                }
+                else
+                {
+                    return 0 if defined($error);
+                }
             } # col
         } # row
+        if( ($error_on_sheet > $error_limit) && !($error_on_sheet % 2) && !is_swapping($swap))
+        {
+            _log_message("ERROR: Max error per sheet reached.[$error_on_sheet]\n");
+            last;
+        }
+        if (($error_on_sheet > 0) && is_swapping($swap))
+        {
+            print "\nWARN: SWAP OCCURRED.\n\n";
+            $status = 1;
+        }
         print "INFO: [$gotSheetName]: ..... [OK].\n" if $DEBUG == 1;
     } # sheet
 
+    return $status;
+}
+
+=head2 is_swapping()
+
+=cut
+
+sub is_swapping
+{
+    my $data = shift;
+    return 0 unless defined $data;
+    
+    foreach (keys %{$data->{exp}})
+    {
+        my $exp = $data->{exp}->{$_}; 
+        my $out = $data->{out}->{$_};
+
+        return 0 if grep(/$exp->[0]/,@{$out});
+    }
     return 1;
 }
 

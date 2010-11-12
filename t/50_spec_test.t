@@ -10,13 +10,13 @@ use File::Spec::Functions;
 is(compare(
     catfile('t', 'got-4.xls'),
     catfile('t', 'exp-4.xls'),
-    { sheet => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-1.txt') }
+    { tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-1.txt') }
 ), 1);
 
 is(compare(
     catfile('t', 'got-5.xls'),
     catfile('t', 'exp-5.xls'),
-    { sheet => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-2.txt') }
+    { tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-2.txt') }
 ), 1);
 
 is(compare(
@@ -34,13 +34,13 @@ is(compare(
 cmp(
     catfile('t', 'got-4.xls'),
     catfile('t', 'exp-4.xls'),
-    { sheet => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-1.txt') }
+    { tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-1.txt') }
 );
 
 cmp(
     catfile('t', 'got-5.xls'),
     catfile('t', 'exp-5.xls'),
-    { sheet => 'Ignore', tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-2.txt') }
+    { tolerance => 10**-12, sheet_tolerance => 0.20, spec => catfile('t', 'spec-2.txt') }
 );
 
 cmp(

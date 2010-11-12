@@ -1,5 +1,11 @@
 Revision history for Perl extension Test::Excel.
 
+1.03    Fri Nov 12 18:11:10 2010
+        - Added two new keys 'swap_check' and 'error_limit' to the rule definitions.
+        - Updated method _validate_rule() to handle the new keys in the rule defintions.
+        - Updated method cmp() and compare() to handle the new key appropriately.
+        - Added unit test to test the functionality of the new keys.        
+
 1.02    Fri Nov 12 10:51:22 2010
         - Renamed method cmp_excel() to cmp().
         - Renamed method compare_excel() to compare().
