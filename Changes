@@ -1,5 +1,10 @@
 Revision history for Perl extension Test::Excel.
 
+1.04    Mon Nov 15 10:25:21 2010
+        - Renamed method cmp() back to original cmp_excel() to avoid any conflictions.
+        - Renamed method compare back to original compare_excel() to avoid any conflictions.
+        - Fixed all the unit tests affected by this change.
+
 1.03    Fri Nov 12 18:11:10 2010
         - Added two new keys 'swap_check' and 'error_limit' to the rule definitions.
         - Updated method _validate_rule() to handle the new keys in the rule defintions.
@@ -15,11 +20,11 @@ Revision history for Perl extension Test::Excel.
 
 1.01    Fri Nov 12 09:57:43 2010
         - Renamed internal method _dump_error() to _log_message().
-        - Added one debug line to the method compare().
+        - Added one debug line to the method compare_excel().
 
 0.09    Thu Nov 11 15:33:19 2010
         - Updated the rule definitions one more time, silly me :-(
-        - Fixed unit test 30_compare.t and 40_unit_test.t and 50_spec_test.t
+        - Fixed unit test 30_compare_excel.t and 40_unit_test.t and 50_spec_test.t
           to reflect the change in rule definitions.
         - Updated method _validate_rule() to reflect the change in rule definitions.
 
@@ -28,24 +33,24 @@ Revision history for Perl extension Test::Excel.
         - Handling correctly when more than one sheets are specified in the rule definitions.
         - Added unit test to check multiple sheets specified by ignore key in the rule definitions.
         - Added test data file exp-6.xls and got-6.xls.
-        - Fixed unit test 30_compare.t and 50_spec_test.t regarding change in rule definitions.
+        - Fixed unit test 30_compare_excel.t and 50_spec_test.t regarding change in rule definitions.
         - Updated pod about change in rule definitions.
         - Updated method _validate_rule() to reflect the change in rule definitions.
 
 0.07    Wed Nov 10 20:08:15 2010
         - Added local method _validate_rule().
-        - Fixed unit test 30_compare.t
+        - Fixed unit test 30_compare_excel.t
         - Added more unit test to 40_unit_test.t about data validations.
         - Added more unit test to 50_spec_test.t about ingorerange field of spec file.
         - Corrected the definition of rules in the pod.
-        - Updated method cmp() and method compare() to test the file first.
+        - Updated method cmp_excel() and method compare_excel() to test the file first.
         
 0.06    Wed Nov 10 11:13:01 2010
         - Added Readonly module to the pre-requisite list.
         - Added unit test for ignore range in the spec.
-        - Changed the interface of method cmp() and method compare()
+        - Changed the interface of method cmp_excel() and method compare_excel()
           to accomodate the error message.
-        - Fixed unit test for cmp() to reflect the changes in interface.
+        - Fixed unit test for cmp_excel() to reflect the changes in interface.
         - Updated pod about the interface changes.
         - Updated pod about DEBUGGING feature.
         - Updated pod about rule definitions.
@@ -54,20 +59,20 @@ Revision history for Perl extension Test::Excel.
         - Added unit test for spec file.
         - Added unit test for helper method.
         - Organised pod for the module.
-        - Fixed unit test 20_cmp.t as the signature has changed.
-        - Fixed unit test 30_compare.t as the error message has changed.
+        - Fixed unit test 20_cmp_excel.t as the signature has changed.
+        - Fixed unit test 30_compare_excel.t as the error message has changed.
         - Importing module Spreadsheet::ParseExcel::Utility for method int2col() and col2int().
 
 0.04    Tue Nov 09 09:42:49 2010
         - Added manifest.t to the test suite.
         - Added MANIFEST.SKIP to the MANIFEST file.
         - Updated MANIFEST to include sample test data.
-        - Replaced die() with croak() and fixed the unit test for method compare().
-        - Removed test code from method compare().
+        - Replaced die() with croak() and fixed the unit test for method compare_excel().
+        - Removed test code from method compare_excel().
 
 0.03    Mon Nov 08 19:58:19 2010
         - Added unit test.
-        - Updated the method cmp() and compare() signature to allow the rule definition.
+        - Updated the method cmp_excel() and compare_excel() signature to allow the rule definition.
         - Added STRING and NUMBER comparison.
 
 0.02     Thu Oct 14 09:10:11 2010
@@ -75,4 +80,3 @@ Revision history for Perl extension Test::Excel.
 
 0.01     Fri Aug 13 16:15:49 2010
         - module created
-

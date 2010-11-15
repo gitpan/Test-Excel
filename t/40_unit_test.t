@@ -40,35 +40,35 @@ is($got_letter, $exp_letter);
 
 eval
 {
-    $result = cmp('x.xls','y.xls');
+    $result = cmp_excel('x.xls','y.xls');
 };
 $error = $@;
 like($error, qr/ERROR: Unable to locate file/);
 
 eval
 {
-    $result = cmp(catfile('t','got-1.xls'),'y.xls');
+    $result = cmp_excel(catfile('t','got-1.xls'),'y.xls');
 };
 $error = $@;
 like($error, qr/ERROR: Unable to locate file/);
 
 eval
 {
-    $result = compare('x.xls','y.xls');
+    $result = compare_excel('x.xls','y.xls');
 };
 $error = $@;
 like($error, qr/ERROR: Unable to locate file/);
 
 eval
 {
-    $result = compare(catfile('t','got-1.xls'),'y.xls');
+    $result = compare_excel(catfile('t','got-1.xls'),'y.xls');
 };
 $error = $@;
 like($error, qr/ERROR: Unable to locate file/);
 
 eval
 {
-    $result = cmp(catfile('t','got-1.xls'),
+    $result = cmp_excel(catfile('t','got-1.xls'),
                         catfile('t','exp-1.xls'), 
                         'Test Message');
 };
@@ -77,7 +77,7 @@ like($error, qr/ERROR: Invalid RULE definitions. It has to be reference to a HAS
 
 eval
 {
-    $result = compare(catfile('t','got-1.xls'),
+    $result = compare_excel(catfile('t','got-1.xls'),
                             catfile('t','exp-1.xls'), 
                             'Test Message');
 };
@@ -86,7 +86,7 @@ like($error, qr/ERROR: Invalid RULE definitions. It has to be reference to a HAS
 
 eval
 {
-    $result = cmp(catfile('t','got-1.xls'),
+    $result = cmp_excel(catfile('t','got-1.xls'),
                         catfile('t','exp-1.xls'), 
                         { name => 'Test Message'});
 };
@@ -95,7 +95,7 @@ like($error, qr/ERROR: Invalid key found in the rule definitions./);
 
 eval
 {
-    $result = compare(catfile('t','got-1.xls'),
+    $result = compare_excel(catfile('t','got-1.xls'),
                             catfile('t','exp-1.xls'), 
                             { name => 'Test Message'});
 };
@@ -104,7 +104,7 @@ like($error, qr/ERROR: Invalid key found in the rule definitions./);
 
 eval
 {
-    $result = cmp(catfile('t','got-1.xls'),
+    $result = cmp_excel(catfile('t','got-1.xls'),
                         catfile('t','exp-1.xls'), 
                         { message         => 'Testing', 
                           sheet           => 'Test Message', 
@@ -115,7 +115,7 @@ like($error, qr/ERROR: Missing key tolerance in the rule definitions./);
 
 eval
 {
-    $result = compare(catfile('t','got-1.xls'),
+    $result = compare_excel(catfile('t','got-1.xls'),
                             catfile('t','exp-1.xls'), 
                             { message         => 'Testing', 
                               sheet           => 'Test Message', 
@@ -126,7 +126,7 @@ like($error, qr/ERROR: Missing key tolerance in the rule definitions./);
 
 eval
 {
-    $result = cmp(catfile('t','got-1.xls'),
+    $result = cmp_excel(catfile('t','got-1.xls'),
                         catfile('t','exp-1.xls'), 
                         { message => 'Testing', 
                           spec    => catfile('t','spec-1.txt')});
@@ -136,7 +136,7 @@ like($error, qr/ERROR: Missing key sheet_tolerance in the rule definitions./);
 
 eval
 {
-    $result = compare(catfile('t','got-1.xls'),
+    $result = compare_excel(catfile('t','got-1.xls'),
                             catfile('t','exp-1.xls'), 
                            { message => 'Testing', 
                              spec    => catfile('t','spec-1.txt')});
@@ -146,7 +146,7 @@ like($error, qr/ERROR: Missing key sheet_tolerance in the rule definitions./);
 
 eval
 {
-    $result = cmp(catfile('t','got-1.xls'),
+    $result = cmp_excel(catfile('t','got-1.xls'),
                         catfile('t','exp-1.xls'), 
                         { message         => 'Testing', 
                           sheet_tolerance => 0.2, 
@@ -157,7 +157,7 @@ like($error, qr/ERROR: Missing key tolerance in the rule definitions./);
 
 eval
 {
-    $result = compare(catfile('t','got-1.xls'),
+    $result = compare_excel(catfile('t','got-1.xls'),
                             catfile('t','exp-1.xls'), 
                            { message         => 'Testing',
                              sheet_tolerance => 0.2,                            

@@ -14,7 +14,7 @@ use Spreadsheet::ParseExcel::Utility qw(int2col col2int);
 require Exporter;
 
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(cmp compare column_row letter_to_number number_to_letter cells_within_range);
+our @EXPORT = qw(cmp_excel compare_excel column_row letter_to_number number_to_letter cells_within_range);
 
 =head1 NAME
 
@@ -22,11 +22,11 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 1.03
+Version 1.04
 
 =cut
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 $|=1;
 
@@ -41,35 +41,35 @@ Readonly my $MAX_ERRORS_PER_SHEET => 0;
   use Test::More no_plan => 1;
   use Test::Excel;
 
-  cmp('foo.xls', 'bar.xls', { message => 'EXCELSs are identical.' });
+  cmp_excel('foo.xls', 'bar.xls', { message => 'EXCELSs are identical.' });
 
   # or
 
   my $foo = Spreadsheet::ParseExcel::Workbook->Parse('foo.xls');
   my $bar = Spreadsheet::ParseExcel::Workbook->Parse('bar.xls');
-  cmp($foo, $bar, { message => 'EXCELs are identical.' });
+  cmp_excel($foo, $bar, { message => 'EXCELs are identical.' });
 
   # or even in standalone mode:
 
   use Test::Excel;
   print "EXCELs are identical.\n"
-      if compare("foo.xls", "bar.xls");
+      if compare_excel("foo.xls", "bar.xls");
 
 =head1 DESCRIPTION
 
 This module is meant to be used for testing custom generated Excel files, it 
-provides two functions at the moment, which is C<cmp> and C<compare>. 
-These can be used to compare two Excel files to see if they are I<visually> 
-similar. The function C<cmp> is for testing purpose where function C<compare>
+provides two functions at the moment, which is C<cmp_excel> and C<compare_excel>. 
+These can be used to compare_excel two Excel files to see if they are I<visually> 
+similar. The function C<cmp_excel> is for testing purpose where function C<compare_excel>
 can be used as standalone. Future versions may include other testing functions.
 
 =head2 Definition of Rule
 
-The new paramter has been added to both method cmp() and method compare() 
+The new paramter has been added to both method cmp_excel() and method compare_excel() 
 called rule. This is optional, however, this would allow to apply your own rule 
 for comparison. This should be passed in as reference to a HASH with the keys 
 'sheet', 'tolerance', 'sheet_tolerance' and optionally 'message'(only relevant 
-to method cmp()).
+to method cmp_excel()).
 
 =over 7
 
@@ -106,7 +106,7 @@ Limit the error per sheet. Default is 0.
 
 =item message: String (Optional)
 
-Test message to be displayed. Only required when calling method cmp().
+Test message to be displayed. Only required when calling method cmp_excel().
 
 =back
 
@@ -192,7 +192,7 @@ sub _validate_rule
     }
 }
 
-=head2 cmp($got, $exp, { ...rule... })
+=head2 cmp_excel($got, $exp, { ...rule... })
 
 This function will tell you whether the two Excel files are "visually" 
 different, ignoring differences in embedded fonts/images and metadata.
@@ -202,7 +202,7 @@ or a file path (which is in turn passed to the Spreadsheet::ParseExcel construct
 
 =cut
 
-sub cmp
+sub cmp_excel
 {
     my $got  = shift;
     my $exp  = shift;
@@ -422,7 +422,7 @@ sub cmp
     }
 }
         
-=head2 compare($got, $exp, { ...rule... })
+=head2 compare_excel($got, $exp, { ...rule... })
 
 This function will tell you whether the two Excel files are "visually" 
 different, ignoring differences in embedded fonts/images and metadata in standalone mode.
@@ -432,7 +432,7 @@ path (which is in turn passed to the Spreadsheet::ParseExcel constructor).
 
 =cut
 
-sub compare
+sub compare_excel
 {
     my $got  = shift;
     my $exp  = shift;
