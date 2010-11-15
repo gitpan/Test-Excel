@@ -1,8 +1,14 @@
 Revision history for Perl extension Test::Excel.
 
+1.05    Mon Nov 15 20:13:11 2010
+        - Fixed the error_limit typo.
+        - Added unit test for error_limit key in the rule.
+        - Used 'prove -v' to fix the some of the test cases in the 30_compare_excel.t.
+          Although I am not sure why 'Build test' and 'prove' give two different outputs.
+
 1.04    Mon Nov 15 10:25:21 2010
-        - Renamed method cmp() back to original cmp_excel() to avoid any conflictions.
-        - Renamed method compare back to original compare_excel() to avoid any conflictions.
+        - Renamed method cmp() back to original cmp_excel() to avoid any conflicts.
+        - Renamed method compare back to original compare_excel() to avoid any conflicts.
         - Fixed all the unit tests affected by this change.
 
 1.03    Fri Nov 12 18:11:10 2010

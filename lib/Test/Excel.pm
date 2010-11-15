@@ -22,11 +22,11 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 1.04
+Version 1.05
 
 =cut
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 $|=1;
 
@@ -227,9 +227,9 @@ sub cmp_excel
     
     $status = 1;
     _validate_rule($rule);
-    $spec = parse($rule->{spec})  if (exists $rule->{spec});
-    $error_limit = $rule->{limit} if (exists $rule->{error_limit});
-    $message = $rule->{message}   if exists($rule->{message});
+    $spec    = parse($rule->{spec})      if (exists $rule->{spec});
+    $message = $rule->{message}          if exists($rule->{message});
+    $error_limit = $rule->{error_limit}  if (exists $rule->{error_limit});
     $error_limit = $MAX_ERRORS_PER_SHEET unless defined $error_limit;
 
     @gotWorkSheets = $got->worksheets();
@@ -382,18 +382,9 @@ sub cmp_excel
                 {
                     if ($status == 0)
                     {
-                        $status = 0;
                         $error_on_sheet++;
                         push @{$swap->{exp}->{number_to_letter($col-1)}}, $expData;
                         push @{$swap->{got}->{number_to_letter($col-1)}}, $gotData;
-                    }
-                }
-                else
-                {
-                    unless ($status)
-                    {
-                        $Test->ok(0, $message);
-                        return 0;
                     }
                 }
             } # col
@@ -454,14 +445,14 @@ sub compare_excel
     }
 
     my (@gotWorkSheets, @expWorkSheets);
-    my ($status, $error, $error_limit, $swap, $spec);
+    my ($status, $error, $error_limit, $spec);
     
     $status = 1;
     _validate_rule($rule);
-    $spec = parse($rule->{spec})  if (exists $rule->{spec});
-    $error_limit = $rule->{limit} if (exists $rule->{error_limit});
+    $spec = parse($rule->{spec})        if (exists $rule->{spec});
+    $error_limit = $rule->{error_limit} if (exists $rule->{error_limit});
     $error_limit = $MAX_ERRORS_PER_SHEET unless defined $error_limit;
-
+    
     @gotWorkSheets = $got->worksheets();
     @expWorkSheets = $exp->worksheets();
 
@@ -473,7 +464,10 @@ sub compare_excel
         return 0;
     }
 
-    my ($i);
+    my ($i, @sheets);
+    @sheets = split(/\|/,$rule->{sheet}) 
+        if (exists($rule->{sheet}) && defined($rule->{sheet}));
+
     for ($i=0; $i<scalar(@gotWorkSheets); $i++)
     {
         my ($error_on_sheet);
@@ -498,31 +492,36 @@ sub compare_excel
         ($gotColMin, $gotColMax) = $gotWorkSheet->col_range();
         ($expRowMin, $expRowMax) = $expWorkSheet->row_range();
         ($expColMin, $expColMax) = $expWorkSheet->col_range();
-
+        
+        if ($DEBUG > 1)
+        {
+            _log_message("\n");
+            _log_message("INFO:[$gotSheetName]:[$gotRowMin][$gotColMin]:[$gotRowMax][$gotColMax]");
+            _log_message("INFO:[$expSheetName]:[$expRowMin][$expColMin]:[$expRowMax][$expColMax]");
+        }
+        
         if (defined($gotRowMax) && defined($expRowMax) && ($gotRowMax != $expRowMax))
         {
-            $error = "ERROR: Max row counts mismatch in sheet [$gotSheetName]. ";
+            $error  = "\nERROR: Max row counts mismatch in sheet [$gotSheetName]. ";
             $error .= "Got[$gotRowMax] Expected: [$expRowMax]\n";
             _log_message($error);
             return 0;
         }
+        
         if (defined($gotColMax) &&  defined($expColMax) && ($gotColMax != $expColMax))
         {
-            $error = "ERROR: Max column counts mismatch in sheet [$gotSheetName]. ";
+            $error  = "\nERROR: Max column counts mismatch in sheet [$gotSheetName]. ";
             $error .= "Got[$gotColMax] Expected: [$expColMax]\n";
             _log_message($error);
             return 0;
         }
 
-        my ($row, $col, @sheets);
-        @sheets = split(/\|/,$rule->{sheet}) 
-            if (exists($rule->{sheet}) && defined($rule->{sheet}));
-
+        my ($row, $col, $swap);
         for ($row=$gotRowMin; $row<=$gotRowMax; $row++)
         {
             for ($col=$gotColMin; $col<=$gotColMax; $col++)
             {
-                my ($gotData, $expData);
+                my ($gotData, $expData, $error);
                 $gotData = $gotWorkSheet->{Cells}[$row][$col]->{Val};
                 $expData = $expWorkSheet->{Cells}[$row][$col]->{Val};
                 
@@ -562,42 +561,42 @@ sub compare_excel
                                        grep(/$gotSheetName/,@sheets)
                                      ) )
                                 {
-                                    print "INFO: [NUMBER]:[$gotSheetName]:[SPC][".($row+1)."][".($col+1)."] ... "
+                                    print "\nINFO: [NUMBER]:[$gotSheetName]:[SPC][".($row+1)."][".($col+1)."]:[$gotData][$expData] ... "
                                         if $DEBUG > 1;
                                     $compare_with = $rule->{sheet_tolerance};
                                 }
                                 else
                                 {        
-                                    print "INFO: [NUMBER]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."] ... "
+                                    print "\nINFO: [NUMBER]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."]:[$gotData][$expData] ... "
                                         if $DEBUG > 1;
                                     $compare_with = $rule->{tolerance};
                                 }
 
                                 if ($compare_with < $difference)
                                 {
+                                    print "[FAIL]" if $DEBUG > 1;
                                     $difference = sprintf("%02f", $difference);
-                                    $error .= "ERROR: [NUMBER]:[$gotSheetName]:Expected:[$expData]Got:[$gotData]Diff:[$difference].\n";
-                                    _log_message($error);
                                     $status = 0;
                                 }
                                 else
                                 {
-                                    print "[PASS]\n" if $DEBUG > 1;
+                                    $status = 1;
+                                    print "[PASS]" if $DEBUG > 1;
                                 }    
                             }
                             else
                             {
-                                print "INFO: [NUMBER]:[$gotSheetName]:[N/A][".($row+1)."][".($col+1)."] ... "
+                                print "\nINFO: [NUMBER]:[$gotSheetName]:[N/A][".($row+1)."][".($col+1)."]:[$gotData][$expData] ... "
                                     if $DEBUG > 1;
                                 if ($expData != $gotData)
                                 {
-                                    $error .= "ERROR: [NUMBER]:[$gotSheetName]:Expected:[$expData]Got:[$gotData].\n";
-                                    _log_message($error);
+                                    print "[FAIL]" if $DEBUG > 1;
                                     $status = 0;
                                 }
                                 else
                                 {
-                                    print "[PASS]\n" if $DEBUG > 1;
+                                    $status = 1;
+                                    print "[PASS]" if $DEBUG > 1;
                                 }    
                             }
                         }
@@ -606,44 +605,46 @@ sub compare_excel
                     {
                         if (uc($gotData) ne uc($expData))
                         {
-                            $error .= "ERROR: [STRING]:[$gotSheetName]:Expected:[$expData]Got:[$gotData].\n";
-                            _log_message($error);
+                            _log_message("INFO: [STRING]:[$gotSheetName]:[$expData][$gotData] ... [FAIL]");
                             $status = 0;
                         }
                         else
                         {
-                            print "INFO: [STRING]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."] ... [PASS]\n"
+                            $status = 1;
+                            _log_message("INFO: [STRING]:[$gotSheetName]:[STD][".($row+1)."][".($col+1)."]:[$gotData][$expData] ... [PASS]")
                                 if $DEBUG > 1;
                         }
                     }
-                }
-                
-                if (exists($rule->{swap_check}) && defined($rule->{swap_check}) && ($rule->{swap_check}))
-                {
-                    if (defined($error))
+                                
+                    if (exists($rule->{swap_check}) && defined($rule->{swap_check}) && ($rule->{swap_check}))
                     {
-                        $status = 0;
-                        $error_on_sheet++;
-                        push @{$swap->{exp}->{number_to_letter($col-1)}}, $expData;
-                        push @{$swap->{got}->{number_to_letter($col-1)}}, $gotData;
+                        if ($status == 0)
+                        {
+                            $error_on_sheet++;
+                            push @{$swap->{exp}->{number_to_letter($col-1)}}, $expData;
+                            push @{$swap->{got}->{number_to_letter($col-1)}}, $gotData;
+                            
+                            if (($error_on_sheet >= $error_limit) && ($error_on_sheet % 2 == 0) && !is_swapping($swap))
+                            {    
+                                _log_message("ERROR: Max error per sheet reached.[$error_on_sheet]\n");
+                                return $status;
+                            }
+                        }
                     }
                 }
-                else
-                {
-                    return 0 if defined($error);
-                }
             } # col
+            return $status 
+                if (($error_on_sheet >= $error_limit) && ($error_on_sheet % 2 == 0) && !is_swapping($swap));
         } # row
-        if( ($error_on_sheet > $error_limit) && !($error_on_sheet % 2) && !is_swapping($swap))
+        
+        if (exists($rule->{swap_check}) && defined($rule->{swap_check}) && ($rule->{swap_check}))
         {
-            _log_message("ERROR: Max error per sheet reached.[$error_on_sheet]\n");
-            last;
-        }
-        if (($error_on_sheet > 0) && is_swapping($swap))
-        {
-            print "\nWARN: SWAP OCCURRED.\n\n";
-            $status = 1;
-        }
+            if (($error_on_sheet > 0) && is_swapping($swap))
+            {
+                print "\n\nWARN: SWAP OCCURRED.\n\n";
+                $status = 1;
+            }
+        }    
         print "INFO: [$gotSheetName]: ..... [OK].\n" if $DEBUG == 1;
     } # sheet
 
@@ -663,7 +664,7 @@ sub is_swapping
     {
         my $exp = $data->{exp}->{$_}; 
         my $out = $data->{out}->{$_};
-
+        
         return 0 if grep(/$exp->[0]/,@{$out});
     }
     return 1;
