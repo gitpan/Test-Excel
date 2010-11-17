@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::Excel.
 
+1.07    Wed Nov 17 16:18:49 2010
+        - Updated pod about the "Famous Software Award" given by Download.FamousWhy.com.
+
 1.06    Wed Nov 17 09:58:35 2010
         - Fixed the unit test that causing too much of trouble.
 

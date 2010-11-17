@@ -22,11 +22,17 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 1.06
+Version 1.07
+
+=head1 AWARD
+
+Test::Excel has been granted the "Famous Software Award" by Download.FamousWhy.com on Wed 17 Nov 2010.
+
+http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 $|=1;
 
