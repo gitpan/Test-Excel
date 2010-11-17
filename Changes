@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::Excel.
 
+1.06    Wed Nov 17 09:58:35 2010
+        - Fixed the unit test that causing too much of trouble.
+
 1.05    Mon Nov 15 20:13:11 2010
         - Fixed the error_limit typo.
         - Added unit test for error_limit key in the rule.
