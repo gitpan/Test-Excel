@@ -22,7 +22,7 @@ Test::Excel - A module for testing and comparing Excel files
 
 =head1 VERSION
 
-Version 1.08
+Version 1.09
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.08';
+our $VERSION = '1.09';
 
 $|=1;
 
@@ -220,6 +220,16 @@ sub cmp_excel
     compare_excel($got, $exp, $rule);
 }
 
+=head2 compare_excel($got, $exp, { ...rule... })
+
+This function will tell you whether the two Excel files are "visually"
+different, ignoring differences in embedded fonts/images and metadata in standalone mode.
+
+Both $got and $exp can be either instances of Spreadsheet::ParseExcel or a file
+path (which is in turn passed to the Spreadsheet::ParseExcel constructor).
+
+=cut
+
 sub compare_excel
 {
     my $got  = shift;
@@ -260,11 +270,11 @@ sub compare_excel
         $error = "ERROR: Sheets count mismatch. ";
         $error .= "Got: [".scalar(@gotWorkSheets)."] exp: [".scalar(@expWorkSheets)."]\n";
         _log_message($error);
-	if (defined($test) && ($test))
-	{
-	    $Test->ok(0, $message);
-	    return;
-	}
+        if (defined($test) && ($test))
+        {
+            $Test->ok(0, $message);
+            return;
+        }
         return 0;
     }
 
@@ -289,11 +299,11 @@ sub compare_excel
         {
             $error = "ERROR: Sheetname mismatch. Got: [$gotSheetName] exp: [$expSheetName].\n";
             _log_message($error);
-	        if (defined($test) && ($test))
-	        {
-		        $Test->ok(0, $message);
-		        return;
-	        }
+            if (defined($test) && ($test))
+            {
+                $Test->ok(0, $message);
+                return;
+            }
             return 0;
         }
 
@@ -314,11 +324,11 @@ sub compare_excel
             $error  = "\nERROR: Max row counts mismatch in sheet [$gotSheetName]. ";
             $error .= "Got[$gotRowMax] Expected: [$expRowMax]\n";
             _log_message($error);
-	        if (defined($test) && ($test))
-	        {
-		        $Test->ok(0, $message);
-		        return;
-	        }
+            if (defined($test) && ($test))
+            {
+                $Test->ok(0, $message);
+                return;
+            }
             return 0;
         }
 
@@ -327,11 +337,11 @@ sub compare_excel
             $error  = "\nERROR: Max column counts mismatch in sheet [$gotSheetName]. ";
             $error .= "Got[$gotColMax] Expected: [$expColMax]\n";
             _log_message($error);
-	        if (defined($test) && ($test))
-	        {
-		        $Test->ok(0, $message);
-		        return;
-	        }
+            if (defined($test) && ($test))
+            {
+                $Test->ok(0, $message);
+                return;
+            }
             return 0;
         }
 
@@ -446,11 +456,11 @@ sub compare_excel
                             if (($error_on_sheet >= $error_limit) && ($error_on_sheet % 2 == 0) && !is_swapping($swap))
                             {
                                 _log_message("ERROR: Max error per sheet reached.[$error_on_sheet]\n");
-				                if (defined($test) && ($test))
-				                {
-				                    $Test->ok($status, $message);
-				                    return;
-				                }
+                                if (defined($test) && ($test))
+                                {
+                                    $Test->ok($status, $message);
+                                    return;
+                                }
                                 return $status;
                             }
                         }
@@ -458,15 +468,15 @@ sub compare_excel
                 }
             } # col
 
-	    if (($error_on_sheet >= $error_limit) && ($error_on_sheet % 2 == 0) && !is_swapping($swap))
-	    {
-		    if (defined($test) && ($test))
-		    {
-		        $Test->ok($status, $message);
-		        return;
-		    }
-		    return $status;
-	    }
+        if (($error_on_sheet >= $error_limit) && ($error_on_sheet % 2 == 0) && !is_swapping($swap))
+        {
+            if (defined($test) && ($test))
+            {
+                $Test->ok($status, $message);
+                return;
+            }
+            return $status;
+        }
 
         } # row
 
@@ -484,8 +494,8 @@ sub compare_excel
 
     if (defined($test) && ($test))
     {
-	    $Test->ok($status, $message);
-	    return;
+        $Test->ok($status, $message);
+        return;
     }
     return $status;
 }

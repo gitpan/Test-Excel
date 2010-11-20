@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::Excel.
 
+1.09    Sat Nov 20 20:32:59 2010
+        - Documented method compare_excel(), got removed by mistake in the last release.
+
 1.08    Sat Nov 20 07:41:24 2010
         - Fixed the code for non-windows platform.
 
