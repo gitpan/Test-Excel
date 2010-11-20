@@ -41,5 +41,3 @@ is(compare_excel(
     catfile('t', 'exp-8.xls'),
     { swap_check => 1, error_limit => 12, sheet => 'MySheet1|MySheet2', tolerance => 10**-12, sheet_tolerance => 0.20 }
 ), 1);
-
-done_testing();

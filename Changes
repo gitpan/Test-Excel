@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::Excel.
 
+1.08    Sat Nov 20 07:41:24 2010
+        - Fixed the code for non-windows platform.
+
 1.07    Wed Nov 17 16:18:49 2010
         - Updated pod about the "Famous Software Award" given by Download.FamousWhy.com.
 
@@ -21,7 +24,7 @@ Revision history for Perl extension Test::Excel.
         - Added two new keys 'swap_check' and 'error_limit' to the rule definitions.
         - Updated method _validate_rule() to handle the new keys in the rule defintions.
         - Updated method cmp() and compare() to handle the new key appropriately.
-        - Added unit test to test the functionality of the new keys.        
+        - Added unit test to test the functionality of the new keys.
 
 1.02    Fri Nov 12 10:51:22 2010
         - Renamed method cmp_excel() to cmp().
@@ -56,7 +59,7 @@ Revision history for Perl extension Test::Excel.
         - Added more unit test to 50_spec_test.t about ingorerange field of spec file.
         - Corrected the definition of rules in the pod.
         - Updated method cmp_excel() and method compare_excel() to test the file first.
-        
+
 0.06    Wed Nov 10 11:13:01 2010
         - Added Readonly module to the pre-requisite list.
         - Added unit test for ignore range in the spec.
@@ -66,7 +69,7 @@ Revision history for Perl extension Test::Excel.
         - Updated pod about the interface changes.
         - Updated pod about DEBUGGING feature.
         - Updated pod about rule definitions.
-          
+
 0.05    Tue Nov 09 20:05:11 2010
         - Added unit test for spec file.
         - Added unit test for helper method.
