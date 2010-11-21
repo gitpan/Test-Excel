@@ -2,7 +2,7 @@
 
 use strict; use warnings;
 
-use Test::More tests => 20;
+use Test::More tests => 21;
 
 use Test::Excel;
 use File::Spec::Functions;
@@ -69,7 +69,7 @@ like($error, qr/ERROR: Unable to locate file/);
 eval
 {
     $result = cmp_excel(catfile('t','got-1.xls'),
-                        catfile('t','exp-1.xls'), 
+                        catfile('t','exp-1.xls'),
                         'Test Message');
 };
 $error = $@;
@@ -78,7 +78,7 @@ like($error, qr/ERROR: Invalid RULE definitions. It has to be reference to a HAS
 eval
 {
     $result = compare_excel(catfile('t','got-1.xls'),
-                            catfile('t','exp-1.xls'), 
+                            catfile('t','exp-1.xls'),
                             'Test Message');
 };
 $error = $@;
@@ -87,7 +87,7 @@ like($error, qr/ERROR: Invalid RULE definitions. It has to be reference to a HAS
 eval
 {
     $result = cmp_excel(catfile('t','got-1.xls'),
-                        catfile('t','exp-1.xls'), 
+                        catfile('t','exp-1.xls'),
                         { name => 'Test Message'});
 };
 $error = $@;
@@ -96,7 +96,7 @@ like($error, qr/ERROR: Invalid key found in the rule definitions./);
 eval
 {
     $result = compare_excel(catfile('t','got-1.xls'),
-                            catfile('t','exp-1.xls'), 
+                            catfile('t','exp-1.xls'),
                             { name => 'Test Message'});
 };
 $error = $@;
@@ -105,9 +105,9 @@ like($error, qr/ERROR: Invalid key found in the rule definitions./);
 eval
 {
     $result = cmp_excel(catfile('t','got-1.xls'),
-                        catfile('t','exp-1.xls'), 
-                        { message         => 'Testing', 
-                          sheet           => 'Test Message', 
+                        catfile('t','exp-1.xls'),
+                        { message         => 'Testing',
+                          sheet           => 'Test Message',
                           sheet_tolerance => 0.2});
 };
 $error = $@;
@@ -116,9 +116,9 @@ like($error, qr/ERROR: Missing key tolerance in the rule definitions./);
 eval
 {
     $result = compare_excel(catfile('t','got-1.xls'),
-                            catfile('t','exp-1.xls'), 
-                            { message         => 'Testing', 
-                              sheet           => 'Test Message', 
+                            catfile('t','exp-1.xls'),
+                            { message         => 'Testing',
+                              sheet           => 'Test Message',
                               sheet_tolerance => 0.2});
 };
 $error = $@;
@@ -127,8 +127,8 @@ like($error, qr/ERROR: Missing key tolerance in the rule definitions./);
 eval
 {
     $result = cmp_excel(catfile('t','got-1.xls'),
-                        catfile('t','exp-1.xls'), 
-                        { message => 'Testing', 
+                        catfile('t','exp-1.xls'),
+                        { message => 'Testing',
                           spec    => catfile('t','spec-1.txt')});
 };
 $error = $@;
@@ -137,8 +137,8 @@ like($error, qr/ERROR: Missing key sheet_tolerance in the rule definitions./);
 eval
 {
     $result = compare_excel(catfile('t','got-1.xls'),
-                            catfile('t','exp-1.xls'), 
-                           { message => 'Testing', 
+                            catfile('t','exp-1.xls'),
+                           { message => 'Testing',
                              spec    => catfile('t','spec-1.txt')});
 };
 $error = $@;
@@ -147,9 +147,9 @@ like($error, qr/ERROR: Missing key sheet_tolerance in the rule definitions./);
 eval
 {
     $result = cmp_excel(catfile('t','got-1.xls'),
-                        catfile('t','exp-1.xls'), 
-                        { message         => 'Testing', 
-                          sheet_tolerance => 0.2, 
+                        catfile('t','exp-1.xls'),
+                        { message         => 'Testing',
+                          sheet_tolerance => 0.2,
                           spec            => catfile('t','spec-1.txt')});
 };
 $error = $@;
@@ -158,9 +158,9 @@ like($error, qr/ERROR: Missing key tolerance in the rule definitions./);
 eval
 {
     $result = compare_excel(catfile('t','got-1.xls'),
-                            catfile('t','exp-1.xls'), 
+                            catfile('t','exp-1.xls'),
                            { message         => 'Testing',
-                             sheet_tolerance => 0.2,                            
+                             sheet_tolerance => 0.2,
                              spec            => catfile('t','spec-1.txt')});
 };
 $error = $@;
@@ -172,3 +172,20 @@ eval
 };
 $error = $@;
 like($error, qr/ERROR: Unable to locate spec file/);
+
+eval
+{
+    $result = compare_excel(catfile('t','got-1.xls'),
+                            catfile('t','exp-1.xls'),
+                           { message         => 'Testing',
+                             sheet_tolerance => 0.2,
+                             spec            => catfile('t','spec-1.txt'),
+                             a => 1,
+                             b => 2,
+                             c => 3,
+                             d => 4,
+                             e => 5,
+                             f => 6,});
+};
+$error = $@;
+like($error, qr/ERROR: Rule has more than 8 keys defined./);

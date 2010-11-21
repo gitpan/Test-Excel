@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::Excel.
 
+1.10    Sat Nov 21 14:19:01 2010
+        - Updated error message for method _validate_rule().
+        - Added unit test for number of keys in the rule definitions.
+
 1.09    Sat Nov 20 20:32:59 2010
         - Documented method compare_excel(), got removed by mistake in the last release.
 

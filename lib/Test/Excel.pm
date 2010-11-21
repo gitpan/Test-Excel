@@ -18,11 +18,11 @@ our @EXPORT = qw(cmp_excel compare_excel column_row letter_to_number number_to_l
 
 =head1 NAME
 
-Test::Excel - A module for testing and comparing Excel files
+Test::Excel - A module for testing and comparing Excel files.
 
 =head1 VERSION
 
-Version 1.09
+Version 1.10
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.09';
+our $VERSION = '1.10';
 
 $|=1;
 
@@ -159,17 +159,17 @@ sub _validate_rule
     $keys = scalar(keys(%{$rule}));
     return if (($keys == 1) && exists($rule->{message}));
 
-    croak("ERROR: Rule has more than 7 keys defined.\n")
+    croak("ERROR: Rule has more than 8 keys defined.\n")
         if $keys > 8;
 
     $valid = {'message'         => 1,
-              'sheet'           => 1,
-              'spec'            => 1,
-              'tolerance'       => 1,
-              'sheet_tolerance' => 1,
-              'error_limit'     => 1,
-              'swap_check'      => 1,
-              'test'            => 1,};
+              'sheet'           => 2,
+              'spec'            => 3,
+              'tolerance'       => 4,
+              'sheet_tolerance' => 5,
+              'error_limit'     => 6,
+              'swap_check'      => 7,
+              'test'            => 8,};
     foreach (keys %{$rule})
     {
         croak("ERROR: Invalid key found in the rule definitions.\n")
