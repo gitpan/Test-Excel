@@ -1,6 +1,10 @@
 Revision history for Perl extension Test::Excel.
 
-1.10    Sat Nov 21 14:19:01 2010
+1.11    Sun Nov 21 15:12:44 2010
+        - Renamed method is_swapping() to internal method _is_swapping().
+        - Documented the internal method _is_swapping().
+
+1.10    Sun Nov 21 14:19:01 2010
         - Updated error message for method _validate_rule().
         - Added unit test for number of keys in the rule definitions.
 

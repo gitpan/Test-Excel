@@ -22,7 +22,7 @@ Test::Excel - A module for testing and comparing Excel files.
 
 =head1 VERSION
 
-Version 1.10
+Version 1.11
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.10';
+our $VERSION = '1.11';
 
 $|=1;
 
@@ -453,7 +453,7 @@ sub compare_excel
                             push @{$swap->{exp}->{number_to_letter($col-1)}}, $expData;
                             push @{$swap->{got}->{number_to_letter($col-1)}}, $gotData;
 
-                            if (($error_on_sheet >= $error_limit) && ($error_on_sheet % 2 == 0) && !is_swapping($swap))
+                            if (($error_on_sheet >= $error_limit) && ($error_on_sheet % 2 == 0) && !_is_swapping($swap))
                             {
                                 _log_message("ERROR: Max error per sheet reached.[$error_on_sheet]\n");
                                 if (defined($test) && ($test))
@@ -468,7 +468,7 @@ sub compare_excel
                 }
             } # col
 
-        if (($error_on_sheet >= $error_limit) && ($error_on_sheet % 2 == 0) && !is_swapping($swap))
+        if (($error_on_sheet >= $error_limit) && ($error_on_sheet % 2 == 0) && !_is_swapping($swap))
         {
             if (defined($test) && ($test))
             {
@@ -482,7 +482,7 @@ sub compare_excel
 
         if (exists($rule->{swap_check}) && defined($rule->{swap_check}) && ($rule->{swap_check}))
         {
-            if (($error_on_sheet > 0) && is_swapping($swap))
+            if (($error_on_sheet > 0) && _is_swapping($swap))
             {
                 print "\n\nWARN: SWAP OCCURRED.\n\n";
                 $status = 1;
@@ -500,11 +500,15 @@ sub compare_excel
     return $status;
 }
 
-=head2 is_swapping()
+=head2 _is_swapping()
+
+This is an internal method that accepts Excel data and verifies whether the
+difference is actually because of swapping of rows. Returns 1 if it is swapping
+otherwise 0.
 
 =cut
 
-sub is_swapping
+sub _is_swapping
 {
     my $data = shift;
     return 0 unless defined $data;
