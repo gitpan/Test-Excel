@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::Excel.
 
+1.12    Wed Nov 24 09:51:23 2010
+        - Added SIGNATURE to the distribution.
+        - Added unit test for SIGNATURE.
+
 1.11    Sun Nov 21 15:12:44 2010
         - Renamed method is_swapping() to internal method _is_swapping().
         - Documented the internal method _is_swapping().

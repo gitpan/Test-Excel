@@ -2,6 +2,7 @@
 use Module::Build;
 
 my $builder = Module::Build->new(
+    sign           => 1,
     module_name    => 'Test::Excel',
     license        => 'perl',
     dist_author    => 'Mohammad S Anwar, <mohammad.anwar@yahoo.com>',
