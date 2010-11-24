@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::Excel.
 
+1.13    Wed Nov 24 09:57:15 2010
+        - Removed all internal method details from the pod.
+
 1.12    Wed Nov 24 09:51:23 2010
         - Added SIGNATURE to the distribution.
         - Added unit test for SIGNATURE.

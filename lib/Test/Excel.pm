@@ -22,7 +22,7 @@ Test::Excel - A module for testing and comparing Excel files.
 
 =head1 VERSION
 
-Version 1.12
+Version 1.13
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.12';
+our $VERSION = '1.13';
 
 $|=1;
 
@@ -138,14 +138,6 @@ You can set it anything greater than 1 for fine grained debug information. i.e.
 =cut
 
 my $Test = Test::Builder->new;
-
-=head1 METHODS
-
-=head2 _validate_rule()
-
-This is a local method to validate the rule definitions.
-
-=cut
 
 sub _validate_rule
 {
@@ -500,14 +492,6 @@ sub compare_excel
     return $status;
 }
 
-=head2 _is_swapping()
-
-This is an internal method that accepts Excel data and verifies whether the
-difference is actually because of swapping of rows. Returns 1 if it is swapping
-otherwise 0.
-
-=cut
-
 sub _is_swapping
 {
     my $data = shift;
@@ -701,12 +685,6 @@ sub cells_within_range
 
     return $cells;
 }
-
-=head2 _log_message()
-
-This is an internal method that dumps the message to STDOUT.
-
-=cut
 
 sub _log_message
 {
