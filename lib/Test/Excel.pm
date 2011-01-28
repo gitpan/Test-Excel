@@ -22,7 +22,7 @@ Test::Excel - A module for testing and comparing Excel files.
 
 =head1 VERSION
 
-Version 1.13
+Version 1.14
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.13';
+our $VERSION = '1.14';
 
 $|=1;
 
@@ -136,8 +136,6 @@ You can set it anything greater than 1 for fine grained debug information. i.e.
    $Test::Excel::DEBUG = 2;
 
 =cut
-
-my $Test = Test::Builder->new;
 
 sub _validate_rule
 {
@@ -244,7 +242,7 @@ sub compare_excel
     }
 
     my (@gotWorkSheets, @expWorkSheets);
-    my ($message, $status, $error, $error_limit, $spec, $test);
+    my ($message, $status, $error, $error_limit, $spec, $test, $TESTER);
 
     $status = 1;
     $test = $rule->{test}                if ((ref($rule) eq 'HASH') && exists($rule->{test}));
@@ -257,6 +255,7 @@ sub compare_excel
     @gotWorkSheets = $got->worksheets();
     @expWorkSheets = $exp->worksheets();
 
+    $TESTER = Test::Builder->new if (defined($test) && ($test));
     if (scalar(@gotWorkSheets) != scalar(@expWorkSheets))
     {
         $error = "ERROR: Sheets count mismatch. ";
@@ -264,7 +263,7 @@ sub compare_excel
         _log_message($error);
         if (defined($test) && ($test))
         {
-            $Test->ok(0, $message);
+            $TESTER->ok(0, $message);
             return;
         }
         return 0;
@@ -293,7 +292,7 @@ sub compare_excel
             _log_message($error);
             if (defined($test) && ($test))
             {
-                $Test->ok(0, $message);
+                $TESTER->ok(0, $message);
                 return;
             }
             return 0;
@@ -318,7 +317,7 @@ sub compare_excel
             _log_message($error);
             if (defined($test) && ($test))
             {
-                $Test->ok(0, $message);
+                $TESTER->ok(0, $message);
                 return;
             }
             return 0;
@@ -331,7 +330,7 @@ sub compare_excel
             _log_message($error);
             if (defined($test) && ($test))
             {
-                $Test->ok(0, $message);
+                $TESTER->ok(0, $message);
                 return;
             }
             return 0;
@@ -450,7 +449,7 @@ sub compare_excel
                                 _log_message("ERROR: Max error per sheet reached.[$error_on_sheet]\n");
                                 if (defined($test) && ($test))
                                 {
-                                    $Test->ok($status, $message);
+                                    $TESTER->ok($status, $message);
                                     return;
                                 }
                                 return $status;
@@ -464,7 +463,7 @@ sub compare_excel
         {
             if (defined($test) && ($test))
             {
-                $Test->ok($status, $message);
+                $TESTER->ok($status, $message);
                 return;
             }
             return $status;
@@ -486,7 +485,7 @@ sub compare_excel
 
     if (defined($test) && ($test))
     {
-        $Test->ok($status, $message);
+        $TESTER->ok($status, $message);
         return;
     }
     return $status;

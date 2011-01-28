@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::Excel.
 
+1.14    Fri Jan 28 17:31:48 2011
+        - Creates Test::Builder object only when required.
+
 1.13    Wed Nov 24 09:57:15 2010
         - Removed all internal method details from the pod.
 
