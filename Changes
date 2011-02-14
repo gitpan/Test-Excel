@@ -1,5 +1,10 @@
 Revision history for Perl extension Test::Excel.
 
+1.15    Mon Feb 14 12:02:19 2011
+        - Added MYMETA.json to MANIFEST.SKIP as one CPAN Tester is not happy on GNU/Linux
+          OS Version 2.6.33-arch, Perl version (5.12.1) as reported on Monday, 
+          14th February 2011 (3.12am) UK TIME.
+
 1.14    Fri Jan 28 17:31:48 2011
         - Creates Test::Builder object only when required.
 

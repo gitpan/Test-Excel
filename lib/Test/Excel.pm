@@ -22,7 +22,7 @@ Test::Excel - A module for testing and comparing Excel files.
 
 =head1 VERSION
 
-Version 1.14
+Version 1.15
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.14';
+our $VERSION = '1.15';
 
 $|=1;
 
