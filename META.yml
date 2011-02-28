@@ -21,7 +21,7 @@ name: Test-Excel
 provides:
   Test::Excel:
     file: lib/Test/Excel.pm
-    version: 1.15
+    version: 1.16
 resources:
   license: http://dev.perl.org/licenses/
-version: 1.15
+version: 1.16

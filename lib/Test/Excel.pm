@@ -22,7 +22,7 @@ Test::Excel - A module for testing and comparing Excel files.
 
 =head1 VERSION
 
-Version 1.15
+Version 1.16
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.15';
+our $VERSION = '1.16';
 
 $|=1;
 
@@ -759,6 +759,10 @@ Copyright 2010 by Mohammad S Anwar.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
+
+=head1 DISCLAIMER
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 =cut
 

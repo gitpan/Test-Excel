@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::Excel.
 
+1.16    Mon Feb 28 11:55:10 2011
+        - Added DISCLAIMER section to the pod.
+        - Added "add_to_cleanup" to the Build.PL.
+
 1.15    Mon Feb 14 12:02:19 2011
         - Added MYMETA.json to MANIFEST.SKIP as one CPAN Tester is not happy on GNU/Linux
           OS Version 2.6.33-arch, Perl version (5.12.1) as reported on Monday, 
