@@ -1,5 +1,10 @@
 Revision history for Perl extension Test::Excel.
 
+1.17    Wed Mar 02 11:52:22 2011
+        - Added 'clean' key to the Makefile.PL.
+        - Removed "-T" from the first line of pod.t, manifest.t and 00-signature.t. 
+          It appears to me that Mac OS X doesn't like it, for some reason.
+
 1.16    Mon Feb 28 11:55:10 2011
         - Added DISCLAIMER section to the pod.
         - Added "add_to_cleanup" to the Build.PL.
