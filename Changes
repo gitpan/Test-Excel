@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::Excel.
 
+1.18    Wed Mar 09 17:42:39 2011
+        - Changed the description of the module to match with the registered module.
+
 1.17    Wed Mar 02 11:52:22 2011
         - Added 'clean' key to the Makefile.PL.
         - Removed "-T" from the first line of pod.t, manifest.t and 00-signature.t. 
@@ -52,7 +55,7 @@ Revision history for Perl extension Test::Excel.
 
 1.04    Mon Nov 15 10:25:21 2010
         - Renamed method cmp() back to original cmp_excel() to avoid any conflicts.
-        - Renamed method compare back to original compare_excel() to avoid any conflicts.
+        - Renamed method compare() back to original compare_excel() to avoid any conflicts.
         - Fixed all the unit tests affected by this change.
 
 1.03    Fri Nov 12 18:11:10 2010
