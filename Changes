@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::Excel.
 
+1.19    Wed Mar 10 12:21:20 2011
+        - One last time, promise, changed the description of the module.
+
 1.18    Wed Mar 09 17:42:39 2011
         - Changed the description of the module to match with the registered module.
 

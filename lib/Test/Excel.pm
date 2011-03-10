@@ -18,11 +18,11 @@ our @EXPORT = qw(cmp_excel compare_excel column_row letter_to_number number_to_l
 
 =head1 NAME
 
-Test::Excel - Test and compare Excel file.
+Test::Excel - Interface to test and compare Excel files.
 
 =head1 VERSION
 
-Version 1.18
+Version 1.19
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.18';
+our $VERSION = '1.19';
 
 $|=1;
 

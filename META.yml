@@ -1,5 +1,5 @@
 ---
-abstract: 'Test and compare Excel file.'
+abstract: 'Interface to test and compare Excel files.'
 author:
   - 'Mohammad S Anwar, <mohammad.anwar@yahoo.com>'
 build_requires:
@@ -21,7 +21,7 @@ name: Test-Excel
 provides:
   Test::Excel:
     file: lib/Test/Excel.pm
-    version: 1.18
+    version: 1.19
 resources:
   license: http://dev.perl.org/licenses/
-version: 1.18
+version: 1.19
