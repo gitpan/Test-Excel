@@ -22,7 +22,7 @@ Test::Excel - Interface to test and compare Excel files.
 
 =head1 VERSION
 
-Version 1.19
+Version 1.20
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.19';
+our $VERSION = '1.20';
 
 $|=1;
 
