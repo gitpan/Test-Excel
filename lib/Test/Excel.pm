@@ -22,7 +22,7 @@ Test::Excel - Interface to test and compare Excel files.
 
 =head1 VERSION
 
-Version 1.20
+Version 1.21
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.20';
+our $VERSION = '1.21';
 
 $|=1;
 
@@ -755,7 +755,7 @@ Mohammad S Anwar, E<lt>mohammad.anwar@yahoo.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2010 by Mohammad S Anwar.
+Copyright 2010-2011 by Mohammad S Anwar.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
