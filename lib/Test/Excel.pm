@@ -22,7 +22,7 @@ Test::Excel - Interface to test and compare Excel files.
 
 =head1 VERSION
 
-Version 1.21
+Version 1.22
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.21';
+our $VERSION = '1.22';
 
 $|=1;
 
@@ -63,139 +63,46 @@ Readonly my $MAX_ERRORS_PER_SHEET => 0;
 
 =head1 DESCRIPTION
 
-This module is meant to be used for testing custom generated Excel files, it
-provides two functions at the moment, which is C<cmp_excel> and C<compare_excel>.
-These can be used to compare_excel two Excel files to see if they are I<visually>
-similar. The function C<cmp_excel> is for testing purpose where function C<compare_excel>
-can be used as standalone. Future versions may include other testing functions.
+This  module  is  meant to be used for testing custom generated  Excel  files, it provides two 
+functions at  the  moment,  which  is C<cmp_excel>  and C<compare_excel>. These can be used to 
+compare_excel 2  Excel files to see if they are I<visually> similar. The function C<cmp_excel>  
+is for testing purpose where function C<compare_excel> can be used as standalone. 
 
-=head2 Definition of Rule
+=head1 RULE
 
-The new paramter has been added to both method cmp_excel() and method compare_excel()
-called rule. This is optional, however, this would allow to apply your own rule
-for comparison. This should be passed in as reference to a HASH with the keys
-'sheet', 'tolerance', 'sheet_tolerance' and optionally 'message'(only relevant
-to method cmp_excel()).
+The  new paramter has been added to both method cmp_excel() and  method compare_excel() called
+RULE.  This is optional, however, this would allow to apply your own rule for comparison. This
+should  be passed in as a reference to a HASH with the keys sheet, tolerance,  sheet_tolerance
+and optionally swap_check, error_limit and message (only relevant to method cmp_excel()).
 
-=over 7
+    +----------------------------------------------------------------------------------------+
+    | Key              | Description                                                         |
+    +----------------------------------------------------------------------------------------+
+    | sheet            | "|" seperated sheet names.                                          |     
+    | tolerance        | Number. Apply to all NUMBERS except on 'sheet'/'spec'. e.g. 10**-12 |
+    | sheet_tolerance  | Number. Apply to sheets/ranges in the spec. e.g. 0.20               |
+    | spec             | Path to the specification file.                                     |
+    | swap_check       | Number (optional) (1 or 0). Row swapping check. Default is 0.       | 
+    | error_limit      | Number (optional). Limit error per sheet. Default is 0.             |
+    | message          | String (optional). Only required when calling method cmp_excel().   |
+    +----------------------------------------------------------------------------------------+
 
-=item sheet: "|" seperated sheet name.
+=head1 What is "Visually" Similar?
 
-Apply sheet_tolerance to all the NUMBERS found on these sheets.
-Example: 'Sheet1|Sheet2'
+This module uses the C<Spreadsheet::ParseExcel> module to parse Excel files, then compares the 
+parsed  data structure for differences. We ignore cetain components of the Excel file, such as 
+embedded fonts,  images, forms and annotations, and focus entirely on the layout of each Excel 
+page instead.  Future versions will likely support font and image comparisons, but not in this 
+initial release.
 
-=item tolerance: Number.
-
-This would apply to all the NUMBERS found on all sheets in the excel except the
-one specified by the key sheet and by the title sheet in the spec file.
-Example: 10**-12
-
-=item sheet_tolerance: Number.
-
-These rule would be applied to all the sheets defined in the spec file by the
-title 'sheet' within the range specified by 'range' in the spec file and also
-by the key 'sheet'.
-Example: 0.20
-
-=item spec: Path to the spec file.
-
-This would have the path to the spec file to be used in comparing excel file.
-
-=item swap_check: Number (Optional).
-
-Set it to 1 if you want to do swap check. The default is 0. Swap check ignores
-if the row has been swaped around in the same sheet.
-
-=item error_limit: Number (Optional).
-
-Limit the error per sheet. Default is 0.
-
-=item message: String (Optional)
-
-Test message to be displayed. Only required when calling method cmp_excel().
-
-=back
-
-=head2 What is "Visually" Similar?
-
-This module uses the C<Spreadsheet::ParseExcel> module to parse Excel files,
-then compares the parsed data structure for differences. We ignore cetain
-components of the Excel file, such as embedded fonts, images, forms and
-annotations, and focus entirely on the layout of each Excel page instead.
-Future versions will likely support font and image comparisons, but not
-in this initial release.
-
-=head2 DEBUGGING
-
-Debug mode can be turned on or off by setting package variable $DEBUG, for example,
-
-   $Test::Excel::DEBUG = 1;
-
-You can set it anything greater than 1 for fine grained debug information. i.e.
-
-   $Test::Excel::DEBUG = 2;
-
-=cut
-
-sub _validate_rule
-{
-    my $rule = shift;
-    return unless defined $rule;
-
-    croak("ERROR: Invalid RULE definitions. It has to be reference to a HASH.\n")
-        unless (ref($rule) eq 'HASH');
-
-    my ($keys, $valid);
-    $keys = scalar(keys(%{$rule}));
-    return if (($keys == 1) && exists($rule->{message}));
-
-    croak("ERROR: Rule has more than 8 keys defined.\n")
-        if $keys > 8;
-
-    $valid = {'message'         => 1,
-              'sheet'           => 2,
-              'spec'            => 3,
-              'tolerance'       => 4,
-              'sheet_tolerance' => 5,
-              'error_limit'     => 6,
-              'swap_check'      => 7,
-              'test'            => 8,};
-    foreach (keys %{$rule})
-    {
-        croak("ERROR: Invalid key found in the rule definitions.\n")
-            unless exists($valid->{$_});
-    }
-
-    if ((exists($rule->{spec}) && defined($rule->{spec}))
-        ||
-        (exists($rule->{sheet}) && defined($rule->{sheet})))
-    {
-        croak("ERROR: Missing key sheet_tolerance in the rule definitions.\n")
-            unless (exists($rule->{sheet_tolerance}) && defined($rule->{sheet_tolerance}));
-        croak("ERROR: Missing key tolerance in the rule definitions.\n")
-            unless (exists($rule->{tolerance}) && defined($rule->{tolerance}));
-    }
-    else
-    {
-        if ( (exists($rule->{sheet_tolerance}) && defined($rule->{sheet_tolerance}))
-             ||
-             (exists($rule->{tolerance}) && defined($rule->{tolerance})) )
-        {
-            croak("ERROR: Missing key sheet/spec in the rule definitions.\n")
-                unless ((exists($rule->{sheet}) && defined($rule->{sheet}))
-                        ||
-                        (exists($rule->{spec}) && defined($rule->{spec})));
-        }
-    }
-}
+=head1 METHODS
 
 =head2 cmp_excel($got, $exp, { ...rule... })
 
-This function will tell you whether the two Excel files are "visually"
-different, ignoring differences in embedded fonts/images and metadata.
-
-Both $got and $expected can be either instances of Spreadsheet::ParseExcel
-or a file path (which is in turn passed to the Spreadsheet::ParseExcel constructor).
+This function  will  tell  you  whether the two Excel files are "visually" different, ignoring 
+differences in  embedded fonts/images and metadata. Both $got and $exp can be either instances  
+of Spreadsheet::ParseExcel / file path (which is in turn passed to the Spreadsheet::ParseExcel 
+constructor). This one is for use in TEST MODE.
 
 =cut
 
@@ -212,11 +119,10 @@ sub cmp_excel
 
 =head2 compare_excel($got, $exp, { ...rule... })
 
-This function will tell you whether the two Excel files are "visually"
-different, ignoring differences in embedded fonts/images and metadata in standalone mode.
-
-Both $got and $exp can be either instances of Spreadsheet::ParseExcel or a file
-path (which is in turn passed to the Spreadsheet::ParseExcel constructor).
+This function  will  tell  you  whether the two Excel files are "visually" different, ignoring 
+differences in  embedded fonts/images and metadata. Both $got and $exp can be either instances  
+of Spreadsheet::ParseExcel / file path (which is in turn passed to the Spreadsheet::ParseExcel 
+constructor). This one is for use in STANDALONE MODE.
 
 =cut
 
@@ -491,32 +397,24 @@ sub compare_excel
     return $status;
 }
 
-sub _is_swapping
-{
-    my $data = shift;
-    return 0 unless defined $data;
-
-    foreach (keys %{$data->{exp}})
-    {
-        my $exp = $data->{exp}->{$_};
-        my $out = $data->{out}->{$_};
-
-        return 0 if grep(/$exp->[0]/,@{$out});
-    }
-    return 1;
-}
-
 =head2 parse()
 
-This method parse spec file provided by the user. It expects spec file to be
-in a format mentioned below:
+This method parse specification file provided by the user.  It  expects spec  file  to be in a 
+format mentioned below. Key and values are space seperated.
 
-   sheet       Sheet1
-   range       A3:B14
-   range       B5:C5
-   sheet       Sheet2
-   range       A1:B2
-   ignorerange B3:B8
+    sheet       Sheet1
+    range       A3:B14
+    range       B5:C5
+    sheet       Sheet2
+    range       A1:B2
+    ignorerange B3:B8
+    
+They are grouped as sheet followed by one or more ranges.
+
+    use strict; use warnings;
+    use Test::Excel;
+
+    my $data = Test::Excel::parse('spec-1.txt');
 
 =cut
 
@@ -580,10 +478,6 @@ This method accepts a cell address and returns column and row address as a list.
     my $cell = 'A23';
     my ($col, $row) = Test::Excel::column_row($cell);
 
-    # You should expect these values:
-    # $col => 'A'
-    # $row => 23
-
 =cut
 
 sub column_row
@@ -594,20 +488,18 @@ sub column_row
     croak("ERROR: Invalid cell address [$cell].\n")
         unless ($cell =~ /([A-Za-z]+)(\d+)/);
 
-    return($1, $2);
+    return ($1, $2);
 }
 
 =head2 letter_to_number()
 
-This method accepts a letter and returns back its equivalent number.
-This simply wraps around Spreadsheet::ParseExcel::Utility::col2int().
+This  method accepts a letter and returns back its equivalent number. This simply wraps around
+Spreadsheet::ParseExcel::Utility::col2int().
 
     use strict; use warnings;
     use Test::Excel;
 
     my $number = Test::Excel::letter_to_number('AB');
-
-    # You should expect $number to be 27.
 
 =cut
 
@@ -619,15 +511,13 @@ sub letter_to_number
 
 =head2 number_to_letter()
 
-This number accepts a number and returns its equivalent letter.
-This simply wraps around Spreadsheet::ParseExcel::Utility::int2col().
+This  number  accepts  a  number  and  returns its equivalent letter. This simply wraps around 
+Spreadsheet::ParseExcel::Utility::int2col().
 
     use strict; use warnings;
     use Test::Excel;
 
     my $letter = Test::Excel::number_to_letter(27);
-
-    # You should expect $letter to be 'AB'.
 
 =cut
 
@@ -646,14 +536,6 @@ This method accepts address range and returns all cell address within the range.
 
     my $range = 'A1:B3';
     my $cells = Test::Excel::cells_within_range($range);
-
-    # $cells would have something like below:
-    # [ {row => 1, col => 0},
-    #   {row => 1, col => 1},
-    #   {row => 2, col => 0},
-    #   {row => 2, col => 1},
-    #   {row => 3, col => 0},
-    #   {row => 3, col => 1} ]
 
 =cut
 
@@ -674,15 +556,30 @@ sub cells_within_range
     $min_col = letter_to_number($min_col);
     $max_col = letter_to_number($max_col);
 
-    for($row = $min_row; $row <= $max_row; $row++)
+    for ($row = $min_row; $row <= $max_row; $row++)
     {
-        for($col = $min_col; $col <= $max_col; $col++)
+        for ($col = $min_col; $col <= $max_col; $col++)
         {
             push @{$cells}, { col => $col, row => $row };
         }
     }
 
     return $cells;
+}
+
+sub _is_swapping
+{
+    my $data = shift;
+    return 0 unless defined $data;
+
+    foreach (keys %{$data->{exp}})
+    {
+        my $exp = $data->{exp}->{$_};
+        my $out = $data->{out}->{$_};
+
+        return 0 if grep(/$exp->[0]/,@{$out});
+    }
+    return 1;
 }
 
 sub _log_message
@@ -693,41 +590,87 @@ sub _log_message
     print {*STDOUT} "\n".$message;
 }
 
-=head2 Important Disclaimer
+sub _validate_rule
+{
+    my $rule = shift;
+    return unless defined $rule;
 
-It should be clearly noted that this module does not claim to provide a
-fool-proof comparison of generated Excels. In fact there are still a number
-of ways in which I want to expand the existing comparison functionality.
-This module I<is> actively being developed for a number of projects I am
-currently working on, so expect many changes to happen. If you have any
+    croak("ERROR: Invalid RULE definitions. It has to be reference to a HASH.\n")
+        unless (ref($rule) eq 'HASH');
+
+    my ($keys, $valid);
+    $keys = scalar(keys(%{$rule}));
+    return if (($keys == 1) && exists($rule->{message}));
+
+    croak("ERROR: Rule has more than 8 keys defined.\n")
+        if $keys > 8;
+
+    $valid = {'message'         => 1,
+              'sheet'           => 2,
+              'spec'            => 3,
+              'tolerance'       => 4,
+              'sheet_tolerance' => 5,
+              'error_limit'     => 6,
+              'swap_check'      => 7,
+              'test'            => 8,};
+    foreach (keys %{$rule})
+    {
+        croak("ERROR: Invalid key found in the rule definitions.\n")
+            unless exists($valid->{$_});
+    }
+
+    if ((exists($rule->{spec}) && defined($rule->{spec}))
+        ||
+        (exists($rule->{sheet}) && defined($rule->{sheet})))
+    {
+        croak("ERROR: Missing key sheet_tolerance in the rule definitions.\n")
+            unless (exists($rule->{sheet_tolerance}) && defined($rule->{sheet_tolerance}));
+        croak("ERROR: Missing key tolerance in the rule definitions.\n")
+            unless (exists($rule->{tolerance}) && defined($rule->{tolerance}));
+    }
+    else
+    {
+        if ( (exists($rule->{sheet_tolerance}) && defined($rule->{sheet_tolerance}))
+             ||
+             (exists($rule->{tolerance}) && defined($rule->{tolerance})) )
+        {
+            croak("ERROR: Missing key sheet/spec in the rule definitions.\n")
+                unless ((exists($rule->{sheet}) && defined($rule->{sheet}))
+                        ||
+                        (exists($rule->{spec}) && defined($rule->{spec})));
+        }
+    }
+}
+
+=head1 DEBUG
+
+Debug mode can be turned on or off by setting package variable $DEBUG, for example,
+
+   $Test::Excel::DEBUG = 1;
+
+You can set it anything greater than 1 for fine grained debug information. i.e.
+
+   $Test::Excel::DEBUG = 2;
+
+=head1 NOTES
+
+It should be clearly noted that this module does not claim to provide a fool-proof  comparison
+of  generated  Excels.  In fact there are still a number of ways in which I want to expand the 
+ existing comparison functionality. This module I<is> actively being developed for a number of 
+projects  I  am  currently  working on,  so  expect  many  changes  to happen. If you have any 
 suggestions/comments/questions please feel free to contact me.
 
 =head1 CAVEATS
 
-=head2 Testing Large Excels
-
-Testing of large Excels can take a long time, this is because, well, we are
-doing a lot of computation. In fact, this module test suite includes tests
-against several large Excels, however I am not including those in this distibution
-for obvious reasons.
-
-=head1 TO DO
-
-=over 4
-
-=item More functions for more testing
-
-=item Testing of font data
-
-=item Testing of embedded image data
-
-=back
+Testing  of  large  Excels  can take a long time, this is because, well, we are doing a lot of 
+computation.  In  fact,  this  module  test suite includes tests against several large Excels, 
+however I am not including those in this distibution for obvious reasons.
 
 =head1 BUGS
 
-None that I am aware of. Of course, if you find a bug, let me know, and I will be
-sure to fix it. This is still a very early version, so it is always possible that
-I have just "gotten it wrong" in some places.
+None  that I am aware of. Of course, if you find a bug, let me know, and I will be sure to fix
+it.  This  is still a very early version, so it is always possible that I have just "gotten it 
+wrong" in some places.
 
 =head1 SEE ALSO
 
@@ -757,12 +700,13 @@ Mohammad S Anwar, E<lt>mohammad.anwar@yahoo.comE<gt>
 
 Copyright 2010-2011 by Mohammad S Anwar.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This  library  is free software; you can redistribute it and/or modify it under the same terms
+as Perl itself.
 
 =head1 DISCLAIMER
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+This  program  is  distributed  in  the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 =cut
 
