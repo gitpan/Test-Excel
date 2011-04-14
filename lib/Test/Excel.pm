@@ -22,7 +22,7 @@ Test::Excel - Interface to test and compare Excel files.
 
 =head1 VERSION
 
-Version 1.22
+Version 1.23
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.22';
+our $VERSION = '1.23';
 
 $|=1;
 
@@ -42,31 +42,12 @@ Readonly my $IGNORE               => 1;
 Readonly my $SPECIAL_CASE         => 2;
 Readonly my $MAX_ERRORS_PER_SHEET => 0;
 
-=head1 SYNOPSIS
-
-  use Test::More no_plan => 1;
-  use Test::Excel;
-
-  cmp_excel('foo.xls', 'bar.xls', { message => 'EXCELSs are identical.' });
-
-  # or
-
-  my $foo = Spreadsheet::ParseExcel::Workbook->Parse('foo.xls');
-  my $bar = Spreadsheet::ParseExcel::Workbook->Parse('bar.xls');
-  cmp_excel($foo, $bar, { message => 'EXCELs are identical.' });
-
-  # or even in standalone mode:
-
-  use Test::Excel;
-  print "EXCELs are identical.\n"
-      if compare_excel("foo.xls", "bar.xls");
-
 =head1 DESCRIPTION
 
-This  module  is  meant to be used for testing custom generated  Excel  files, it provides two 
-functions at  the  moment,  which  is C<cmp_excel>  and C<compare_excel>. These can be used to 
-compare_excel 2  Excel files to see if they are I<visually> similar. The function C<cmp_excel>  
-is for testing purpose where function C<compare_excel> can be used as standalone. 
+This  module  is  meant to be used for testing custom generated  Excel  files, it provides two
+functions at  the  moment,  which  is C<cmp_excel>  and C<compare_excel>. These can be used to
+compare_excel 2  Excel files to see if they are I<visually> similar. The function C<cmp_excel>
+is for testing purpose where function C<compare_excel> can be used as standalone.
 
 =head1 RULE
 
@@ -78,31 +59,43 @@ and optionally swap_check, error_limit and message (only relevant to method cmp_
     +----------------------------------------------------------------------------------------+
     | Key              | Description                                                         |
     +----------------------------------------------------------------------------------------+
-    | sheet            | "|" seperated sheet names.                                          |     
+    | sheet            | "|" seperated sheet names.                                          |
     | tolerance        | Number. Apply to all NUMBERS except on 'sheet'/'spec'. e.g. 10**-12 |
     | sheet_tolerance  | Number. Apply to sheets/ranges in the spec. e.g. 0.20               |
     | spec             | Path to the specification file.                                     |
-    | swap_check       | Number (optional) (1 or 0). Row swapping check. Default is 0.       | 
+    | swap_check       | Number (optional) (1 or 0). Row swapping check. Default is 0.       |
     | error_limit      | Number (optional). Limit error per sheet. Default is 0.             |
     | message          | String (optional). Only required when calling method cmp_excel().   |
     +----------------------------------------------------------------------------------------+
 
 =head1 What is "Visually" Similar?
 
-This module uses the C<Spreadsheet::ParseExcel> module to parse Excel files, then compares the 
-parsed  data structure for differences. We ignore cetain components of the Excel file, such as 
-embedded fonts,  images, forms and annotations, and focus entirely on the layout of each Excel 
-page instead.  Future versions will likely support font and image comparisons, but not in this 
+This module uses the C<Spreadsheet::ParseExcel> module to parse Excel files, then compares the
+parsed  data structure for differences. We ignore cetain components of the Excel file, such as
+embedded fonts,  images, forms and annotations, and focus entirely on the layout of each Excel
+page instead.  Future versions will likely support font and image comparisons, but not in this
 initial release.
 
 =head1 METHODS
 
 =head2 cmp_excel($got, $exp, { ...rule... })
 
-This function  will  tell  you  whether the two Excel files are "visually" different, ignoring 
-differences in  embedded fonts/images and metadata. Both $got and $exp can be either instances  
-of Spreadsheet::ParseExcel / file path (which is in turn passed to the Spreadsheet::ParseExcel 
+This function  will  tell  you  whether the two Excel files are "visually" different, ignoring
+differences in  embedded fonts/images and metadata. Both $got and $exp can be either instances
+of Spreadsheet::ParseExcel / file path (which is in turn passed to the Spreadsheet::ParseExcel
 constructor). This one is for use in TEST MODE.
+
+    use strict; use warnings;
+    use Test::More no_plan => 1;
+    use Test::Excel;
+
+    cmp_excel('foo.xls', 'bar.xls', { message => 'EXCELSs are identical.' });
+
+    # or
+
+    my $foo = Spreadsheet::ParseExcel::Workbook->Parse('foo.xls');
+    my $bar = Spreadsheet::ParseExcel::Workbook->Parse('bar.xls');
+    cmp_excel($foo, $bar, { message => 'EXCELs are identical.' });
 
 =cut
 
@@ -119,10 +112,16 @@ sub cmp_excel
 
 =head2 compare_excel($got, $exp, { ...rule... })
 
-This function  will  tell  you  whether the two Excel files are "visually" different, ignoring 
-differences in  embedded fonts/images and metadata. Both $got and $exp can be either instances  
-of Spreadsheet::ParseExcel / file path (which is in turn passed to the Spreadsheet::ParseExcel 
+This function  will  tell  you  whether the two Excel files are "visually" different, ignoring
+differences in  embedded fonts/images and metadata. Both $got and $exp can be either instances
+of Spreadsheet::ParseExcel / file path (which is in turn passed to the Spreadsheet::ParseExcel
 constructor). This one is for use in STANDALONE MODE.
+
+    use strict; use warnings;
+    use Test::Excel;
+
+    print "EXCELs are identical.\n"
+        if compare_excel("foo.xls", "bar.xls");
 
 =cut
 
@@ -399,7 +398,7 @@ sub compare_excel
 
 =head2 parse()
 
-This method parse specification file provided by the user.  It  expects spec  file  to be in a 
+This method parse specification file provided by the user.  It  expects spec  file  to be in a
 format mentioned below. Key and values are space seperated.
 
     sheet       Sheet1

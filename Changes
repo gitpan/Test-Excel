@@ -1,5 +1,10 @@
 Revision history for Perl extension Test::Excel.
 
+1.23    Thu Apr 14 09:48:00 2011
+        - Removed SYNOPSIS section from the pod.
+        - Added example pod for method cmp_excel().
+        - Added example pod for method compare_excel().
+
 1.22    Wed Apr 13 18:53:20 2011
         - Corrected/Updated pod.
         - Cosmetics changes to the pod.
