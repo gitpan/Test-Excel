@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.66.
+signed via the Module::Signature module, version 0.68.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -14,14 +14,14 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 7d0d029c3e53f389e1a7eb863642b9ed5a0ffa1e Build.PL
-SHA1 88b7bf17c97c2e43958f6c84a5adb1451449049f Changes
+SHA1 c74862a538756ff37ee9c429048632b873a2530e Build.PL
+SHA1 0576e82cfd907ec96feaa60a8627e032c4fdb176 Changes
 SHA1 c1e6e3645436ab8a36f8dbc5171ea08ae8340646 MANIFEST
 SHA1 7d20e4e840781030202bb045d5ab81b3fd1b68b0 MANIFEST.SKIP
-SHA1 3bde8c5440598d407aea56caebb0cf80dd2e1a85 META.yml
-SHA1 8cf421680e63c04880c0612e313b9afaee03cfa4 Makefile.PL
+SHA1 4b0452ba9bf8dece2c57e356ead7316bf32e5f3b META.yml
+SHA1 3694ed0f33969f3ca0138b3e8cc157e760bea25f Makefile.PL
 SHA1 3f2134eb41e6034d1df5a80eca394e5bfda9d391 README
-SHA1 d831a4fcd70f751c5f83598a95bd299b2d1c3239 lib/Test/Excel.pm
+SHA1 e0d77ed44c67c7173d2d1ef3e9ec255c55d37edc lib/Test/Excel.pm
 SHA1 24d1412b487160cb73a76b751eb93cec3c4bb6cc t/00-signature.t
 SHA1 8ba68073bfaa8e7327910bc7048532bf6f43f30d t/10_Test-Excel_test.t
 SHA1 2bbb00976f8d85b6eca109685bce084466cadcba t/20_cmp_excel.t
@@ -54,11 +54,11 @@ SHA1 a453ab4a9fd024a5f16c4e01c7f1cee766a45926 t/spec-3.txt
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.14 (MingW32)
 
-iQEcBAEBAgAGBQJNprVJAAoJEPYcXBXhRYOh0CYH/imvvlRKbD9rZ6C3ceTm3NXw
-zBmz5z7qmtGT5QqM9hHW2CrdKSd3j+PjA0tvLbdQuOFO5T9JLR4mpdJwkHX9QPmZ
-Ie5lQsXRCjHx/znTp9GM6ED44o/JoDw+JI5I9v9wTJJzRIbdkB+SiUS0QHnc85b0
-qkm28ZuKXbgt+m79niUwDLgAONeo+fmN/UNpXw83rvd5IN7jSDAqLyuukNZfZ6dn
-10CO/s2XUogeWieZ0XL7Dt5f57YB4FEbokSWgfSOzjofB9z7/ogY+XyakistOuH9
-8mvza7xpg8THEahpajag/s8lvAqYwmlp99LkCiZdIvhHdB9uBGT6/NTKyK2Ed/Q=
-=CIu3
+iQEcBAEBAgAGBQJOP6mLAAoJEPYcXBXhRYOhhlAIAJwyuxExNv93VwdT4eciPV/i
+o9iv6Gjo0paXH+yyfM5T29CDySUqI6u4uD+6XtaHrdMCUcqsGb+KClLq4GfNwVY8
+3yR6nvUD1zF+LgQOGRBPmy/sizF0AVZAcUdFl7KAiSVcTjhOr5GnyQauKCJ5gqf9
+fEClXXc7vw/KQTbTy3IaF8KmQtypaAahAc4qO/lwuuGgVGmhslaHTXWiakc12rcN
+ZUlDH1jVUIO9AabUDOSpfSV4letD1MOSkuMpCOZTb9lXqJq9E81+2bm3d21ukFc2
+JLR5KGO8wKWgdL0fbX1uaPKstsX8gDmcADhq0nSxzi1n1dJ59aofOEygsd0POLE=
+=hff+
 -----END PGP SIGNATURE-----

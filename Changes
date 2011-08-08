@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::Excel.
 
+1.24    Mon Aug 08 10:16:11 2011
+        - Made Readonly v1.03 as minimum requirement.
+        - Prepared the distribution using the Module::Signature v0.68.
+
 1.23    Thu Apr 14 09:48:00 2011
         - Removed SYNOPSIS section from the pod.
         - Added example pod for method cmp_excel().

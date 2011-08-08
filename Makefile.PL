@@ -10,6 +10,6 @@ WriteMakefile(
     'Test::Builder::Tester'   => 0,
     'Test::More'              => 0.47,
     'File::Spec'              => 0,
-    'Readonly'                => 0,
+    'Readonly'                => '1.03',
     }
 );

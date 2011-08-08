@@ -22,7 +22,7 @@ Test::Excel - Interface to test and compare Excel files.
 
 =head1 VERSION
 
-Version 1.23
+Version 1.24
 
 =head1 AWARD
 
@@ -32,7 +32,7 @@ http://download.famouswhy.com/test_excel/
 
 =cut
 
-our $VERSION = '1.23';
+our $VERSION = '1.24';
 
 $|=1;
 
@@ -56,17 +56,17 @@ RULE.  This is optional, however, this would allow to apply your own rule for co
 should  be passed in as a reference to a HASH with the keys sheet, tolerance,  sheet_tolerance
 and optionally swap_check, error_limit and message (only relevant to method cmp_excel()).
 
-    +----------------------------------------------------------------------------------------+
-    | Key              | Description                                                         |
-    +----------------------------------------------------------------------------------------+
-    | sheet            | "|" seperated sheet names.                                          |
-    | tolerance        | Number. Apply to all NUMBERS except on 'sheet'/'spec'. e.g. 10**-12 |
-    | sheet_tolerance  | Number. Apply to sheets/ranges in the spec. e.g. 0.20               |
-    | spec             | Path to the specification file.                                     |
-    | swap_check       | Number (optional) (1 or 0). Row swapping check. Default is 0.       |
-    | error_limit      | Number (optional). Limit error per sheet. Default is 0.             |
-    | message          | String (optional). Only required when calling method cmp_excel().   |
-    +----------------------------------------------------------------------------------------+
+    +-----------------+---------------------------------------------------------------------+
+    | Key             | Description                                                         |
+    +-----------------+---------------------------------------------------------------------+
+    | sheet           | "|" seperated sheet names.                                          |
+    | tolerance       | Number. Apply to all NUMBERS except on 'sheet'/'spec'. e.g. 10**-12 |
+    | sheet_tolerance | Number. Apply to sheets/ranges in the spec. e.g. 0.20               |
+    | spec            | Path to the specification file.                                     |
+    | swap_check      | Number (optional) (1 or 0). Row swapping check. Default is 0.       |
+    | error_limit     | Number (optional). Limit error per sheet. Default is 0.             |
+    | message         | String (optional). Only required when calling method cmp_excel().   |
+    +-----------------+---------------------------------------------------------------------+
 
 =head1 What is "Visually" Similar?
 
