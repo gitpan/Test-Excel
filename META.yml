@@ -16,4 +16,4 @@ no_index:
     - inc
 resources:
   repository: https://github.com/Manwar/Test-Excel.git
-version: '1.27'
+version: '1.28'
